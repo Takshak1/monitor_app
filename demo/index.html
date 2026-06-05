@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustPulse — Live Demo | BOB Hackathon 2026</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #F5F7FA; color: #1A1A1A; font-size: 14px; }
+  .header { background: #1B4F8A; border-bottom: 3px solid #C55A11;
+             padding: 12px 24px; display: flex; align-items: center;
+             justify-content: space-between; }
+  .header h1 { color: #fff; font-size: 20px; font-weight: 600; }
+  .header span { color: rgba(255,255,255,.6); font-size: 13px; margin-left: 10px; }
+  .scenarios { background: #EDF2F8; border-bottom: 1px solid #D0DAE8;
+               padding: 8px 24px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .scenarios label { font-size: 12px; color: #666; margin-right: 4px; }
+  .sc-btn { padding: 5px 12px; border: none; border-radius: 5px; font-size: 12px;
+             font-weight: 600; cursor: pointer; color: #fff; transition: opacity .15s; }
+  .sc-btn:hover { opacity: .85; }
+  .main { display: grid; grid-template-columns: 210px 1fr 240px; gap: 16px;
+           padding: 16px 24px; max-width: 1100px; }
+  .card { background: #fff; border: 1px solid #E4EAF2; border-radius: 10px; padding: 16px; }
+  .sec-label { font-size: 11px; font-weight: 700; color: #1B4F8A; text-transform: uppercase;
+                letter-spacing: .7px; border-bottom: 1.5px solid rgba(27,79,138,.12);
+                padding-bottom: 5px; margin-bottom: 10px; }
+  .tgl-wrap { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
+  .tgl { display: flex; align-items: center; gap: 9px; cursor: pointer; padding: 3px 0;
+          font-size: 13px; color: #444; user-select: none; }
+  .tgl input { display: none; }
+  .tgl-track { width: 34px; height: 19px; border-radius: 10px; background: #CBD5E1;
+                position: relative; transition: background .2s; flex-shrink: 0; }
+  .tgl-track::after { content: ''; position: absolute; top: 2.5px; left: 2.5px; width: 14px;
+                       height: 14px; border-radius: 50%; background: #fff;
+                       transition: left .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .tgl input:checked + .tgl-track { background: #1B4F8A; }
+  .tgl input:checked + .tgl-track::after { left: 17.5px; }
+  input[type=range] { width: 100%; accent-color: #1B4F8A; cursor: pointer; }
+  .ev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .ev-btn { padding: 6px 8px; border: 1px solid #D0DAE8; border-radius: 6px; background: #fff;
+             cursor: pointer; font-size: 12px; display: flex; justify-content: space-between;
+             align-items: center; transition: all .15s; color: #555; }
+  .ev-btn.on { background: #1B4F8A; border-color: #1B4F8A; color: #fff; font-weight: 600; }
+  .ev-btn .pts { font-size: 11px; opacity: .65; }
+  .fa-wrap { display: flex; gap: 6px; }
+  .fa-btn { flex: 1; padding: 5px 0; border: 1px solid #D0DAE8; border-radius: 5px;
+             background: #fff; cursor: pointer; font-size: 13px; transition: all .15s; color: #555; }
+  .fa-btn.on { background: #1B4F8A; border-color: #1B4F8A; color: #fff; font-weight: 600; }
+  .gauge-wrap { text-align: center; margin-bottom: 12px; }
+  .risk-badge { display: inline-block; padding: 4px 14px; border-radius: 5px; color: #fff;
+                 font-size: 13px; font-weight: 600; transition: background .3s; }
+  .dec-card { border-left: 4px solid #0F6E56; border-radius: 0 8px 8px 0;
+               padding: 11px 13px; margin-bottom: 14px; transition: all .3s; }
+  .dec-action { font-size: 13px; font-weight: 600; }
+  .dec-sub { font-size: 12px; color: #555; margin-top: 4px; }
+  .dec-meta { margin-top: 8px; font-size: 11px; color: #777; background: rgba(255,255,255,.6);
+               padding: 3px 8px; border-radius: 4px; }
+  .tier-row { display: flex; justify-content: space-between; align-items: center;
+               padding: 5px 8px; border-radius: 5px; border: 1px solid transparent;
+               transition: all .25s; margin-bottom: 3px; }
+  .tier-score { font-size: 12px; font-weight: 600; }
+  .tier-act { font-size: 11px; color: #666; }
+  .tier-badge { font-size: 10px; color: #fff; padding: 1px 7px; border-radius: 3px;
+                 font-weight: 600; display: none; }
+  .phone-wrap { display: flex; justify-content: center; margin-top: 14px; }
+  .phone { width: 150px; border: 2.5px solid #0F6E56; border-radius: 16px; overflow: hidden;
+            transition: border-color .3s; }
+  .phone-bar { background: #1B4F8A; padding: 4px 11px; display: flex;
+                justify-content: space-between; align-items: center; }
+  .phone-screen { padding: 11px 9px; text-align: center; min-height: 115px; transition: background .3s; }
+  .phone-action { border-radius: 7px; padding: 7px 0; font-size: 11px; font-weight: 600;
+                   margin-top: 10px; transition: background .3s; }
+  .log-section { padding: 0 24px 20px; max-width: 1100px; }
+  .log-entry { display: flex; align-items: center; gap: 10px; padding: 6px 10px;
+                border-radius: 6px; margin-bottom: 4px; border: 1px solid #E8EDF5; }
+  .breakdown-bar { margin-bottom: 7px; }
+  .bar-track { background: #EEF2F8; border-radius: 3px; height: 5px; overflow: hidden; margin-top: 3px; }
+  .bar-fill { height: 100%; border-radius: 3px; background: #C55A11; transition: width .4s; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🛡 TrustPulse</h1>
+    <span>Zero-Friction Adaptive Identity Trust Engine</span>
+  </div>
+  <div style="color:rgba(255,255,255,.8);font-size:13px">BOB Hackathon 2026 · IIT Gandhinagar</div>
+</div>
+
+<div class="scenarios">
+  <label>Quick scenarios:</label>
+  <button class="sc-btn" onclick="scene(0)" style="background:#0F6E56">Normal session</button>
+  <button class="sc-btn" onclick="scene(1)" style="background:#BA7517">New device</button>
+  <button class="sc-btn" onclick="scene(2)" style="background:#993C1D">Acct recovery</button>
+  <button class="sc-btn" onclick="scene(3)" style="background:#A32D2D">Account takeover</button>
+  <button class="sc-btn" onclick="scene(4)" style="background:#7030A0">Insider threat</button>
+  <button class="sc-btn" onclick="scene(0)" style="background:#94A3B8">Reset</button>
+</div>
+
+<div class="main">
+
+  <!-- LEFT: Signals -->
+  <div class="card">
+    <div class="sec-label">Device trust</div>
+    <div class="tgl-wrap">
+      <label class="tgl"><input type="checkbox" id="i-kd" checked onchange="upd()">
+        <span class="tgl-track"></span>Known device</label>
+      <label class="tgl"><input type="checkbox" id="i-dh" checked onchange="upd()">
+        <span class="tgl-track"></span>Device healthy</label>
+      <label class="tgl"><input type="checkbox" id="i-nv" checked onchange="upd()">
+        <span class="tgl-track"></span>No VPN detected</label>
+    </div>
+
+    <div class="sec-label" style="margin-top:14px">Behaviour</div>
+    <div style="font-size:12px;color:#666;margin-bottom:5px">
+      Anomaly level: <strong id="bv-pct" style="color:#0F6E56">0%</strong>
+    </div>
+    <input type="range" min="0" max="100" step="5" value="0" id="i-beh"
+           oninput="onBeh(this.value)">
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#AAA;margin-top:2px">
+      <span>Normal</span><span>Anomalous</span>
+    </div>
+
+    <div class="sec-label" style="margin-top:14px">Context</div>
+    <div class="tgl-wrap">
+      <label class="tgl"><input type="checkbox" id="i-kl" checked onchange="upd()">
+        <span class="tgl-track"></span>Known location</label>
+      <label class="tgl"><input type="checkbox" id="i-nh" checked onchange="upd()">
+        <span class="tgl-track"></span>Normal hours</label>
+      <label class="tgl"><input type="checkbox" id="i-tn" checked onchange="upd()">
+        <span class="tgl-track"></span>Trusted network</label>
+    </div>
+
+    <div class="sec-label" style="margin-top:14px">Failed attempts</div>
+    <div class="fa-wrap">
+      <button id="fa0" class="fa-btn on" onclick="setFa(0)">0</button>
+      <button id="fa1" class="fa-btn"    onclick="setFa(1)">1</button>
+      <button id="fa2" class="fa-btn"    onclick="setFa(2)">2</button>
+      <button id="fa3" class="fa-btn"    onclick="setFa(3)">3+</button>
+    </div>
+  </div>
+
+  <!-- CENTER: Gauge + Event type -->
+  <div class="card">
+    <div class="gauge-wrap">
+      <svg id="gsv" viewBox="0 0 260 150" style="width:100%;max-width:260px">
+        <path d="M 30 132 A 100 100 0 0 0 230 132" fill="none" stroke="#E8EDF5"
+              stroke-width="14" stroke-linecap="round"/>
+        <path id="gf" d="M 30 132 A 100 100 0 0 0 230 132" fill="none" stroke="#0F6E56"
+              stroke-width="16" stroke-linecap="round" stroke-dasharray="0 320"
+              style="transition:stroke-dasharray .5s,stroke .3s"/>
+        <text id="gscore" x="130" y="102" text-anchor="middle" dominant-baseline="central"
+              style="font-size:52px;font-weight:700;fill:#0F6E56;transition:fill .3s">0</text>
+        <text x="130" y="123" text-anchor="middle" style="font-size:11px;fill:#AAA">TRUST SCORE</text>
+        <text x="22"  y="144" text-anchor="middle" style="font-size:10px;fill:#CCC">0</text>
+        <text x="238" y="144" text-anchor="middle" style="font-size:10px;fill:#CCC">100</text>
+      </svg>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px">
+        <span class="risk-badge" id="rbadge" style="background:#0F6E56">Low risk</span>
+        <span id="rlat" style="font-size:12px;color:#888">⏱ 47 ms</span>
+      </div>
+    </div>
+
+    <div class="sec-label">Event type</div>
+    <div class="ev-grid" id="evgrid">
+      <button class="ev-btn on" data-ev="login" data-pts="0" onclick="setEv(this)">
+        <span>Login</span><span class="pts">+0</span></button>
+      <button class="ev-btn" data-ev="transfer" data-pts="10" onclick="setEv(this)">
+        <span>Fund transfer</span><span class="pts">+10</span></button>
+      <button class="ev-btn" data-ev="beneficiary_add" data-pts="20" onclick="setEv(this)">
+        <span>New payee</span><span class="pts">+20</span></button>
+      <button class="ev-btn" data-ev="account_recovery" data-pts="25" onclick="setEv(this)">
+        <span>Acct recovery</span><span class="pts">+25</span></button>
+      <button class="ev-btn" data-ev="admin_access" data-pts="30" onclick="setEv(this)">
+        <span>Admin access</span><span class="pts">+30</span></button>
+      <button class="ev-btn" data-ev="sim_activity" data-pts="35" onclick="setEv(this)">
+        <span>SIM activity</span><span class="pts">+35</span></button>
+    </div>
+
+    <div class="sec-label" style="margin-top:16px">Score breakdown</div>
+    <div id="bkdn"></div>
+  </div>
+
+  <!-- RIGHT: Decision + tiers + phone -->
+  <div class="card">
+    <div class="sec-label">Adaptive response</div>
+    <div class="dec-card" id="dcard" style="background:#E1F5EE;border-left-color:#0F6E56">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="dec-action" id="dact" style="color:#085041">Silent pass</span>
+        <span class="risk-badge" id="dbadge" style="font-size:11px;padding:2px 8px;background:#0F6E56">Low</span>
+      </div>
+      <div class="dec-sub" id="dsub">Zero friction — session continues</div>
+      <div class="dec-meta" id="dmeta">Score: <strong id="dsnum" style="color:#085041">0</strong>/100 · <span id="dlat">47 ms</span></div>
+    </div>
+
+    <div class="sec-label">Response tiers</div>
+    <div id="tiers">
+      <div class="tier-row" data-t="low">
+        <span class="tier-score" style="color:#085041">0–30</span>
+        <span class="tier-act">Silent pass</span>
+        <span id="tb-low" class="tier-badge" style="background:#0F6E56">active</span>
+      </div>
+      <div class="tier-row" data-t="medium">
+        <span class="tier-score" style="color:#633806">31–60</span>
+        <span class="tier-act">Biometric</span>
+        <span id="tb-medium" class="tier-badge" style="background:#BA7517">active</span>
+      </div>
+      <div class="tier-row" data-t="high">
+        <span class="tier-score" style="color:#712B13">61–85</span>
+        <span class="tier-act">Step-up auth</span>
+        <span id="tb-high" class="tier-badge" style="background:#993C1D">active</span>
+      </div>
+      <div class="tier-row" data-t="critical">
+        <span class="tier-score" style="color:#791F1F">86–100</span>
+        <span class="tier-act">Block + alert</span>
+        <span id="tb-critical" class="tier-badge" style="background:#A32D2D">active</span>
+      </div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone" id="phone">
+        <div class="phone-bar">
+          <span style="color:#fff;font-size:9px;font-weight:600">BOB Bank</span>
+          <span style="color:rgba(255,255,255,.5);font-size:8px">9:41</span>
+        </div>
+        <div class="phone-screen" id="pscr">
+          <div style="font-size:11px;color:#777">Sending Rs 45,000</div>
+          <div style="font-size:12px;font-weight:600;margin:3px 0">Ramesh Kumar</div>
+          <div style="font-size:10px;color:#AAA;margin-bottom:10px">HDFC xxxx 4821</div>
+          <div class="phone-action" id="pact" style="background:#0F6E56;color:#fff">✓ Authorised</div>
+          <div id="psub" style="font-size:9px;color:#AAA;margin-top:5px">No friction</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="log-section">
+  <div class="sec-label">Decision log</div>
+  <div id="dlog"><div style="font-size:12px;color:#AAA;padding:4px 0">Adjust signals to generate entries.</div></div>
+</div>
+
+<script>
+const ARC = Math.PI * 100;
+let evPts = 0, evLabel = 'Login', failed = 0, beh = 0;
+let logArr = [], dbTmr = null;
+
+const LV = {
+  low:      { col:'#0F6E56', bg:'#E1F5EE', txt:'#085041', bc:'rgba(15,110,86,.2)',
+               act:'Silent pass',      sub:'Zero friction — session continues',
+               pBg:'#fff', pABg:'#0F6E56', pATxt:'✓ Authorised',       pSub:'No friction' },
+  medium:   { col:'#BA7517', bg:'#FAEEDA', txt:'#633806', bc:'rgba(186,117,23,.2)',
+               act:'Biometric prompt', sub:'Fingerprint or face confirmation',
+               pBg:'#fff', pABg:'#BA7517', pATxt:'◉ Touch to verify',   pSub:'Fingerprint / Face ID' },
+  high:     { col:'#993C1D', bg:'#FAECE7', txt:'#712B13', bc:'rgba(153,60,29,.2)',
+               act:'Step-up auth',     sub:'OTP + face liveness required',
+               pBg:'#FEF9F4', pABg:'#993C1D', pATxt:'⌨ Enter OTP',     pSub:'Sent to +91 xx 5678' },
+  critical: { col:'#A32D2D', bg:'#FCEBEB', txt:'#791F1F', bc:'rgba(163,45,45,.2)',
+               act:'Block + alert',    sub:'Session blocked — SOC notified',
+               pBg:'#FFF5F5', pABg:'#A32D2D', pATxt:'⛔ Session blocked', pSub:'SOC team notified' },
+};
+
+function g(id) { return document.getElementById(id); }
+function ck(id) { return g(id)?.checked; }
+
+function calc() {
+  let s = 0;
+  if (!ck('i-kd')) s += 30;
+  if (!ck('i-dh')) s += 8;
+  if (!ck('i-nv')) s += 12;
+  s += Math.round(beh * 25);
+  if (!ck('i-kl')) s += 15;
+  if (!ck('i-nh')) s += 8;
+  if (!ck('i-tn')) s += 5;
+  s += evPts;
+  s += failed * 8;
+  return Math.min(100, Math.max(0, s));
+}
+
+function lvl(s) { return s<=30?'low':s<=60?'medium':s<=85?'high':'critical'; }
+
+function upd() {
+  const sc = calc(), lk = lvl(sc), lv = LV[lk], lat = Math.round(45 + sc * 0.4);
+  const fill = (sc / 100) * ARC;
+
+  g('gf').setAttribute('stroke-dasharray', fill + ' ' + (ARC + 10));
+  g('gf').style.stroke = lv.col;
+  g('gscore').textContent = sc;
+  g('gscore').style.fill = lv.col;
+  g('rbadge').textContent = lk.charAt(0).toUpperCase() + lk.slice(1) + ' risk';
+  g('rbadge').style.background = lv.col;
+  g('rlat').textContent = '⏱ ' + lat + ' ms';
+
+  const dc = g('dcard');
+  dc.style.background = lv.bg;
+  dc.style.borderLeftColor = lv.col;
+  g('dact').textContent = lv.act; g('dact').style.color = lv.txt;
+  g('dbadge').textContent = lk.charAt(0).toUpperCase() + lk.slice(1);
+  g('dbadge').style.background = lv.col;
+  g('dsub').textContent = lv.sub;
+  g('dsnum').textContent = sc; g('dsnum').style.color = lv.txt;
+  g('dlat').textContent = lat + ' ms';
+
+  ['low','medium','high','critical'].forEach(t => {
+    const row = document.querySelector('[data-t="'+t+'"]'), badge = g('tb-'+t), on = t===lk;
+    row.style.background = on ? LV[t].bg : '';
+    row.style.borderColor = on ? LV[t].col : 'transparent';
+    badge.style.display = on ? 'inline' : 'none';
+  });
+
+  g('phone').style.borderColor = lv.col;
+  g('pscr').style.background = lv.pBg;
+  g('pact').textContent = lv.pATxt; g('pact').style.background = lv.pABg;
+  g('psub').textContent = lv.pSub;
+
+  const devS = (!ck('i-kd')?30:0)+(!ck('i-dh')?8:0)+(!ck('i-nv')?12:0);
+  const ctxS = (!ck('i-kl')?15:0)+(!ck('i-nh')?8:0)+(!ck('i-tn')?5:0);
+  const behS = Math.round(beh*25), failS = failed*8;
+  const rows = [['Device',devS,50],['Behaviour',behS,25],['Context',ctxS,28],['Event',evPts,35],['History',failS,24]];
+  g('bkdn').innerHTML = rows.map(([l,v,m]) =>
+    '<div class="breakdown-bar"><div style="display:flex;justify-content:space-between;font-size:11px;color:#666"><span>'+l+'</span>'
+    +'<span style="font-weight:600;color:'+(v?'#C55A11':'#CCC')+'">+'+v+'</span></div>'
+    +'<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(v/m*100)+'%;background:'+(v?'#C55A11':'#E0E0E0')+'"></div></div></div>'
+  ).join('');
+
+  clearTimeout(dbTmr);
+  dbTmr = setTimeout(() => {
+    logArr.unshift({ t:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+                     ev:evLabel, sc, col:lv.col, act:lv.act });
+    if (logArr.length > 5) logArr.pop();
+    g('dlog').innerHTML = logArr.map((e,i) =>
+      '<div class="log-entry" style="background:'+(i?'#F9FAFB':'rgba('+hr(e.col)+',.05)')+';border-color:'+(i?'#E8EDF5':'rgba('+hr(e.col)+',.2)')+';opacity:'+(1-i*.15)+'">'
+      +'<span style="font-size:11px;color:#AAA;min-width:54px">'+e.t+'</span>'
+      +'<span style="font-size:12px;color:#555;min-width:80px">'+e.ev+'</span>'
+      +'<div style="flex:1;height:5px;background:#E8EDF5;border-radius:3px;overflow:hidden"><div style="width:'+e.sc+'%;height:100%;background:'+e.col+';border-radius:3px"></div></div>'
+      +'<strong style="font-size:13px;color:'+e.col+';min-width:24px;text-align:right">'+e.sc+'</strong>'
+      +'<span style="font-size:11px;color:#fff;background:'+e.col+';padding:2px 9px;border-radius:4px;white-space:nowrap;font-weight:600">'+e.act+'</span>'
+      +'</div>'
+    ).join('');
+  }, 400);
+}
+
+function hr(h) { return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)].join(','); }
+function onBeh(v) { beh=v/100; g('bv-pct').textContent=v+'%'; g('bv-pct').style.color=v>50?'#993C1D':'#0F6E56'; upd(); }
+function setFa(n) { failed=n; [0,1,2,3].forEach(i=>{const b=g('fa'+i);b.classList.toggle('on',i===n);}); upd(); }
+function setEv(b) { document.querySelectorAll('.ev-btn').forEach(x=>x.classList.remove('on')); b.classList.add('on'); evPts=+b.dataset.pts; evLabel=b.querySelector('span').textContent; upd(); }
+
+const SCENES = [
+  { kd:1,dh:1,nv:1,beh:0,kl:1,nh:1,tn:1,ev:'login',pts:0,lb:'Login',fa:0 },
+  { kd:0,dh:1,nv:1,beh:0,kl:1,nh:1,tn:1,ev:'login',pts:0,lb:'Login',fa:0 },
+  { kd:0,dh:1,nv:1,beh:0.2,kl:0,nh:1,tn:1,ev:'account_recovery',pts:25,lb:'Acct recovery',fa:2 },
+  { kd:0,dh:1,nv:0,beh:0.9,kl:0,nh:0,tn:0,ev:'admin_access',pts:30,lb:'Admin access',fa:3 },
+  { kd:1,dh:1,nv:1,beh:0.6,kl:1,nh:0,tn:0,ev:'admin_access',pts:30,lb:'Admin access',fa:0 },
+];
+
+function scene(i) {
+  const s = SCENES[i];
+  ['i-kd','i-dh','i-nv','i-kl','i-nh','i-tn'].forEach((id,j) => {
+    g(id).checked = [s.kd,s.dh,s.nv,s.kl,s.nh,s.tn][j];
+  });
+  beh = s.beh; g('i-beh').value = Math.round(beh*100);
+  g('bv-pct').textContent = Math.round(beh*100)+'%';
+  g('bv-pct').style.color = beh>0.5?'#993C1D':'#0F6E56';
+  evPts = s.pts; evLabel = s.lb;
+  document.querySelectorAll('.ev-btn').forEach(b => b.classList.toggle('on', b.dataset.ev===s.ev));
+  setFa(s.fa);
+  upd();
+}
+
+upd();
+</script>
+</body>
+</html>
