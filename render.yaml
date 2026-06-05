@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: trustpulse-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    pythonVersion: "3.11"
