@@ -1197,12 +1197,17 @@ async function pingBackend() {
   const apiUrl = window.TRUSTPULSE_API_URL
     || (location.protocol === 'file:' ? 'http://localhost:8000' : location.origin);
   if (!apiUrl) { setApiStatus('amber', 'No backend URL configured'); return; }
+  setApiStatus('amber', 'Checking…');
   try {
-    setApiStatus('amber', 'Checking…');
-    const r = await fetch(apiUrl + '/health', { signal: AbortSignal.timeout(3000) });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const r = await fetch(apiUrl + '/health', { signal: controller.signal });
+    clearTimeout(timer);
     if (r.ok) { setApiStatus('green', 'Backend online'); }
-    else       { setApiStatus('amber', 'Backend error'); }
-  } catch { setApiStatus('red', 'Backend offline — local mode'); }
+    else       { setApiStatus('amber', 'Backend error ' + r.status); }
+  } catch (e) {
+    setApiStatus('red', e.name === 'AbortError' ? 'Backend timeout' : 'Backend offline — local mode');
+  }
 }
 function setApiStatus(color, label) {
   const dot = g('api-dot');
