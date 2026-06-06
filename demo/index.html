@@ -4,188 +4,565 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TrustPulse — Live Demo | BOB Hackathon 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
 :root{
-  --blue:#1B4F8A;--orange:#C55A11;
+  --blue:#1B4F8A;--navy:#08213D;--blue-l:#2563EB;--orange:#C55A11;
   --low:#0F6E56;--low-bg:#E1F5EE;--low-txt:#085041;
   --med:#BA7517;--med-bg:#FAEEDA;--med-txt:#633806;
   --high:#993C1D;--high-bg:#FAECE7;--high-txt:#712B13;
   --crit:#A32D2D;--crit-bg:#FCEBEB;--crit-txt:#791F1F;
-  --bg:#F5F7FA;--card:#fff;--border:#E4EAF2;--text:#1A1A1A;--muted:#64748B;
+  --bg:#EDF2FA;--card:#fff;--border:rgba(27,79,138,.09);
+  --text:#0D1B2E;--muted:#64748B;--subtle:#94A3B8;
+  --sh-xs:0 1px 2px rgba(15,40,90,.05);
+  --sh-sm:0 2px 8px rgba(15,40,90,.07),0 1px 2px rgba(15,40,90,.04);
+  --sh:0 6px 20px rgba(15,40,90,.09),0 2px 5px rgba(15,40,90,.05);
+  --sh-lg:0 16px 44px rgba(15,40,90,.13),0 4px 12px rgba(15,40,90,.06);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-std:cubic-bezier(.4,0,.2,1);
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-width:900px}
 
-/* ── HEADER ─────────────────────────────────── */
-.hdr{background:var(--blue);border-bottom:3px solid var(--orange);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.hdr-l{display:flex;align-items:baseline;gap:10px}
-.logo{color:#fff;font-size:19px;font-weight:700;letter-spacing:-.3px}
-.tagline{color:rgba(255,255,255,.6);font-size:12px}
-.hdr-r{display:flex;align-items:center;gap:14px}
-.api-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:11px;color:#fff;cursor:pointer;transition:.2s}
-.api-pill:hover{background:rgba(255,255,255,.18)}
-.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
-.dot-green{background:#4ADE80}.dot-amber{background:#FBB03B}.dot-red{background:#F87171}
-.hack-lbl{color:rgba(255,255,255,.55);font-size:11px}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  background-image:radial-gradient(circle at 1px 1px,rgba(27,79,138,.035) 1px,transparent 0);
+  background-size:22px 22px;
+  color:var(--text);font-size:13px;min-width:900px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
 
-/* ── TABS ─────────────────────────────────── */
-.tabs{display:flex;background:#EDF2F8;border-bottom:1px solid var(--border);padding:0 20px;gap:2px}
-.tb{padding:9px 16px;border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;transition:.15s;white-space:nowrap}
+/* ══ KEYFRAMES ════════════════════════════════════════════════ */
+@keyframes headerIn{
+  from{transform:translateY(-100%);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes scaleIn{
+  from{opacity:0;transform:scale(.975)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes factorIn{
+  from{opacity:0;transform:translateX(-10px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes barSlideIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes logSlideIn{
+  from{opacity:0;transform:translateX(16px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes tierPop{
+  0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}
+}
+@keyframes decFlash{
+  0%{filter:brightness(1)}35%{filter:brightness(1.14)}100%{filter:brightness(1)}
+}
+@keyframes critGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(163,45,45,.4),0 10px 32px rgba(0,0,0,.14)}
+  55%{box-shadow:0 0 0 8px rgba(163,45,45,0),0 10px 32px rgba(0,0,0,.14)}
+}
+@keyframes dotPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.55)}
+  55%{box-shadow:0 0 0 5px rgba(74,222,128,0)}
+}
+@keyframes scanPulse{
+  0%,100%{opacity:1}25%{opacity:.82}
+}
+@keyframes socIn{
+  from{opacity:0;transform:translateY(-6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes shimmer{
+  0%{background-position:200% center}
+  100%{background-position:-200% center}
+}
+
+/* ══ HEADER ══════════════════════════════════════════════════ */
+.hdr{
+  background:linear-gradient(130deg,#05172E 0%,#0C2F5A 32%,#1B4F8A 68%,#1E5EA5 100%);
+  padding:11px 26px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;overflow:hidden;
+  box-shadow:0 4px 28px rgba(5,23,46,.55);
+  animation:headerIn .5s var(--spring) both;
+}
+.hdr::before{
+  content:'';position:absolute;top:-90px;left:20%;
+  width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.055) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hdr::after{
+  content:'';position:absolute;top:-60px;right:8%;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(197,90,17,.12) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hdr-l{display:flex;align-items:baseline;gap:10px;position:relative;z-index:1}
+.logo{
+  color:#fff;font-size:20px;font-weight:800;letter-spacing:-.5px;
+  text-shadow:0 1px 8px rgba(0,0,0,.25);
+}
+.logo em{font-style:normal;color:#FF9D3C;text-shadow:0 0 20px rgba(255,157,60,.4)}
+.tagline{color:rgba(255,255,255,.48);font-size:12px;font-weight:400;letter-spacing:.01em}
+.hdr-r{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.hack-lbl{color:rgba(255,255,255,.4);font-size:11px;letter-spacing:.01em}
+
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot-green{background:#4ADE80;animation:dotPulse 2.2s ease-in-out infinite}
+.dot-amber{background:#FBB03B}
+.dot-red{background:#F87171}
+
+.api-pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);
+  border-radius:20px;padding:5px 14px 5px 10px;
+  font-size:11px;color:#fff;cursor:pointer;font-weight:500;
+  transition:background .2s,transform .18s var(--spring),box-shadow .2s;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.api-pill:hover{background:rgba(255,255,255,.18);transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.22)}
+.api-pill:active{transform:translateY(0)}
+
+/* ══ TABS ════════════════════════════════════════════════════ */
+.tabs{
+  background:#fff;border-bottom:1px solid rgba(27,79,138,.08);
+  padding:0 26px;display:flex;gap:2px;
+  box-shadow:0 2px 10px rgba(15,40,90,.05);
+  animation:fadeUp .35s .08s var(--ease-out) both;
+}
+.tb{
+  padding:11px 18px;border:none;background:transparent;cursor:pointer;
+  font-size:13px;color:var(--muted);border-bottom:2.5px solid transparent;
+  margin-bottom:-1px;font-weight:500;
+  transition:color .15s,border-color .15s;
+  white-space:nowrap;font-family:inherit;letter-spacing:.01em;
+}
 .tb:hover{color:var(--blue)}
-.tb.on{color:var(--blue);border-bottom-color:var(--blue);background:#fff;border-radius:6px 6px 0 0}
+.tb.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
 
-/* ── SHARED ─────────────────────────────────── */
-.panel{display:none;padding:14px 20px 20px}.panel.on{display:block}
-.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
-.sec{font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.8px;border-bottom:1.5px solid rgba(27,79,138,.1);padding-bottom:4px;margin-bottom:9px}
-.badge{display:inline-block;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:600;color:#fff}
+/* ══ SHARED ══════════════════════════════════════════════════ */
+.panel{display:none;padding:14px 26px 30px;animation:scaleIn .22s var(--ease-out) both}
+.panel.on{display:block}
 
-/* ── SCENARIOS BAR ─────────────────────────── */
-.sc-bar{background:#EDF2F8;border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11px}
-.sc-bar label{color:var(--muted);font-weight:600;margin-right:2px}
-.sc-btn{padding:4px 11px;border:none;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;color:#fff;transition:opacity .15s}
-.sc-btn:hover{opacity:.82}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:16px;box-shadow:var(--sh-sm);
+  transition:box-shadow .22s,transform .22s;
+}
+.card:hover{box-shadow:var(--sh)}
+.sig-col .card:hover{transform:translateY(-1px)}
 
-/* ── SIM GRID ─────────────────────────────── */
-.sim-grid{display:grid;grid-template-columns:248px 1fr 258px;gap:14px;margin-top:14px}
+.sec{
+  font-size:10px;font-weight:700;color:#3568A0;text-transform:uppercase;
+  letter-spacing:1.1px;border-bottom:1.5px solid rgba(27,79,138,.09);
+  padding-bottom:6px;margin-bottom:11px;
+}
+.badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;color:#fff}
 
-/* ── SIGNAL CONTROLS ─────────────────────── */
+/* ══ SCENARIO BAR ════════════════════════════════════════════ */
+.sc-bar{
+  background:linear-gradient(180deg,#F2F7FF 0%,#EAF0FA 100%);
+  border-bottom:1px solid rgba(27,79,138,.07);
+  padding:8px 26px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  animation:fadeUp .35s .14s var(--ease-out) both;
+}
+.sc-bar>label{color:var(--muted);font-weight:600;font-size:11px;margin-right:2px}
+.sc-btn{
+  padding:5px 13px;border:none;border-radius:20px;font-size:11px;
+  font-weight:600;cursor:pointer;color:#fff;
+  transition:transform .18s var(--spring),box-shadow .18s,filter .15s;
+  box-shadow:0 2px 7px rgba(0,0,0,.17);font-family:inherit;
+  position:relative;overflow:hidden;
+}
+.sc-btn::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at var(--rx,50%) var(--ry,50%),rgba(255,255,255,.3) 0%,transparent 55%);
+  opacity:0;transition:opacity .15s;border-radius:20px;
+}
+.sc-btn:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.24)}
+.sc-btn:hover::after{opacity:1}
+.sc-btn:active{transform:translateY(0);box-shadow:0 2px 5px rgba(0,0,0,.17)}
+
+/* ══ SIM GRID ════════════════════════════════════════════════ */
+.sim-grid{display:grid;grid-template-columns:252px 1fr 262px;gap:14px;margin-top:14px}
+.sim-grid.scanning .card{animation:scanPulse .4s var(--ease-std)}
 .sig-col{display:flex;flex-direction:column;gap:10px}
-.tgl{display:flex;align-items:center;gap:8px;cursor:pointer;padding:2px 0;font-size:12px;color:#444;user-select:none}
+
+/* ══ TOGGLE ══════════════════════════════════════════════════ */
+.tgl{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  padding:2px 0;font-size:12px;color:#374151;
+  user-select:none;font-weight:500;
+}
 .tgl input{display:none}
-.tgl-tr{width:32px;height:18px;border-radius:9px;background:#CBD5E1;position:relative;transition:background .2s;flex-shrink:0}
-.tgl-tr::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
-.tgl input:checked+.tgl-tr{background:var(--blue)}
-.tgl input:checked+.tgl-tr::after{left:16px}
+.tgl-tr{
+  width:34px;height:19px;border-radius:10px;background:#C9D5E3;
+  position:relative;transition:background .25s var(--ease-std);flex-shrink:0;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.13);
+}
+.tgl-tr::after{
+  content:'';position:absolute;top:2.5px;left:2.5px;
+  width:14px;height:14px;border-radius:50%;background:#fff;
+  transition:left .22s var(--spring);
+  box-shadow:0 1px 4px rgba(0,0,0,.28);
+}
+.tgl input:checked+.tgl-tr{background:linear-gradient(135deg,#1B4F8A,#2563EB)}
+.tgl input:checked+.tgl-tr::after{left:17.5px}
+
+/* ══ SLIDERS ══════════════════════════════════════════════════ */
 .sl-row{display:flex;align-items:center;gap:6px;font-size:11px}
-.sl-lbl{min-width:64px;color:#555}
-.sl-val{min-width:28px;text-align:right;font-weight:600;font-size:11px}
-input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer;height:14px}
+.sl-lbl{min-width:64px;color:#6B7280;font-weight:500}
+.sl-val{min-width:30px;text-align:right;font-weight:700;font-size:11px}
+input[type=range]{
+  flex:1;-webkit-appearance:none;appearance:none;
+  height:4px;background:#D8E3F0;border-radius:2px;
+  outline:none;cursor:pointer;vertical-align:middle;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--blue);box-shadow:0 1px 5px rgba(27,79,138,.5);
+  cursor:pointer;transition:transform .18s var(--spring),box-shadow .18s;
+}
+input[type=range]::-webkit-slider-thumb:hover{
+  transform:scale(1.32);box-shadow:0 3px 12px rgba(27,79,138,.55);
+}
+input[type=range]::-moz-range-thumb{
+  width:15px;height:15px;border-radius:50%;
+  background:var(--blue);border:none;cursor:pointer;
+  box-shadow:0 1px 5px rgba(27,79,138,.5);
+}
+
+/* ══ BUTTON GROUPS ═══════════════════════════════════════════ */
 .btn-grp{display:flex;gap:4px}
-.grp-btn{flex:1;padding:4px 0;border:1px solid var(--border);border-radius:5px;background:#fff;cursor:pointer;font-size:11px;font-weight:600;color:#666;transition:.15s;text-align:center}
-.grp-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.grp-btn{
+  flex:1;padding:5px 0;border:1.5px solid var(--border);
+  border-radius:7px;background:#fff;cursor:pointer;
+  font-size:11px;font-weight:600;color:#6B7280;
+  transition:all .15s;text-align:center;font-family:inherit;
+}
+.grp-btn:hover{border-color:#98B5D5;color:var(--blue);background:#F4F8FF}
+.grp-btn.on{
+  background:linear-gradient(135deg,#1B4F8A,#2563EB);
+  border-color:transparent;color:#fff;
+  box-shadow:0 2px 8px rgba(27,79,138,.36);
+}
+
+/* ══ EVENT BUTTONS ═══════════════════════════════════════════ */
 .ev-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.ev-btn{padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:11px;display:flex;justify-content:space-between;align-items:center;transition:.15s;color:#555}
-.ev-btn.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
-.ev-btn .pts{font-size:10px;opacity:.65}
-.priv-note{font-size:10px;color:var(--low);background:var(--low-bg);border:1px solid rgba(15,110,86,.2);border-radius:4px;padding:3px 7px;display:flex;align-items:center;gap:4px}
+.ev-btn{
+  padding:7px 8px;border:1.5px solid var(--border);border-radius:8px;
+  background:#fff;cursor:pointer;font-size:11px;
+  display:flex;justify-content:space-between;align-items:center;
+  transition:all .17s;color:#4B5563;font-family:inherit;font-weight:500;
+}
+.ev-btn:hover{border-color:#98B5D5;background:#F4F8FF;color:var(--blue)}
+.ev-btn.on{
+  background:linear-gradient(135deg,#1B4F8A,#2563EB);
+  border-color:transparent;color:#fff;font-weight:600;
+  box-shadow:0 2px 8px rgba(27,79,138,.33);
+}
+.ev-btn .pts{font-size:10px;opacity:.7}
+
+.priv-note{
+  font-size:10px;color:var(--low);
+  background:linear-gradient(135deg,#ECFDF5,#D1FAE5);
+  border:1px solid rgba(15,110,86,.2);border-radius:6px;
+  padding:4px 9px;display:flex;align-items:center;gap:4px;font-weight:600;
+}
 .inp-row{display:flex;align-items:center;gap:6px}
-.inp-row input[type=text]{flex:1;border:1px solid var(--border);border-radius:5px;padding:4px 7px;font-size:11px;outline:none;width:0}
-.inp-row input[type=text]:focus{border-color:var(--blue)}
-select{border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-size:11px;background:#fff;outline:none;cursor:pointer;width:100%}
+.inp-row input[type=text]{
+  flex:1;border:1.5px solid var(--border);border-radius:7px;
+  padding:5px 8px;font-size:11px;outline:none;width:0;
+  font-family:inherit;color:var(--text);transition:border-color .15s,box-shadow .15s;
+}
+.inp-row input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,79,138,.08)}
+select{
+  border:1.5px solid var(--border);border-radius:7px;padding:5px 8px;
+  font-size:11px;background:#fff;outline:none;cursor:pointer;width:100%;
+  font-family:inherit;color:var(--text);transition:border-color .15s;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394A3B8'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:calc(100% - 8px) center;padding-right:24px;
+}
 select:focus{border-color:var(--blue)}
 
-/* ── SCORE PANEL ─────────────────────────── */
+/* ══ GAUGE ═══════════════════════════════════════════════════ */
 .gauge-wrap{text-align:center;margin-bottom:10px}
 .risk-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
-.lat-pill{font-size:11px;color:var(--muted);background:#EDF2F8;border-radius:4px;padding:2px 8px}
-.bkdn-bar{margin-bottom:6px}
-.bar-lbl{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:2px}
-.bar-max{font-size:10px;color:#BBB}
-.bar-track{background:#EEF2F8;border-radius:3px;height:6px;overflow:hidden}
-.bar-fill{height:100%;border-radius:3px;transition:width .4s}
-.factor-list{display:flex;flex-direction:column;gap:4px}
-.factor{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:#444;padding:4px 7px;background:#F8FAFD;border-radius:5px;border-left:3px solid #E0E0E0}
-.factor-score{font-weight:700;min-width:26px;font-size:12px}
-.zero-factor{text-align:center;font-size:11px;color:#9CAFb0;padding:8px 0}
+.lat-pill{
+  font-size:11px;color:var(--muted);background:#EEF4FA;
+  border:1px solid rgba(27,79,138,.09);border-radius:6px;
+  padding:3px 9px;font-weight:500;letter-spacing:.01em;
+}
 
-/* ── DECISION PANEL ─────────────────────── */
-.dec-card{border-left:4px solid;border-radius:0 8px 8px 0;padding:11px 13px;margin-bottom:12px;transition:all .3s}
-.dec-action{font-size:14px;font-weight:700}
-.dec-sub{font-size:11px;color:#555;margin-top:3px}
-.dec-meta{margin-top:8px;font-size:10px;color:#777;background:rgba(255,255,255,.6);padding:3px 8px;border-radius:4px}
-.tier-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:5px;border:1px solid transparent;transition:.25s;margin-bottom:3px}
-.tier-score{font-size:11px;font-weight:600}
-.tier-act{font-size:10px;color:#666}
-.tier-badge{font-size:10px;color:#fff;padding:1px 7px;border-radius:3px;font-weight:600;display:none}
-.phone-wrap{display:flex;justify-content:center;margin-top:12px}
-.phone{width:148px;border:2.5px solid var(--low);border-radius:16px;overflow:hidden;transition:border-color .3s}
-.phone-bar{background:var(--blue);padding:4px 10px;display:flex;justify-content:space-between;align-items:center}
-.phone-scr{padding:10px 9px;text-align:center;min-height:120px;transition:background .3s}
-.phone-act{border-radius:7px;padding:7px 0;font-size:11px;font-weight:600;margin-top:9px;transition:background .3s;color:#fff}
-.soc-alert{background:#FCEBEB;border:1px solid #F87171;border-radius:6px;padding:8px 10px;margin-top:8px;font-size:10px;color:var(--crit-txt);display:none}
-.soc-alert.show{display:block}
+/* ══ BREAKDOWN BARS ══════════════════════════════════════════ */
+.bkdn-bar{margin-bottom:9px;animation:barSlideIn .28s var(--ease-out) both}
+.bar-lbl{display:flex;justify-content:space-between;font-size:11px;color:#4B5563;margin-bottom:3px;font-weight:500}
+.bar-max{font-size:10px;color:#C2CEDF;font-weight:400}
+.bar-track{background:#E5EDF8;border-radius:4px;height:7px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .52s var(--spring)}
 
-/* ── DECISION LOG ─────────────────────────── */
+/* ══ RISK FACTORS ════════════════════════════════════════════ */
+.factor-list{display:flex;flex-direction:column;gap:5px}
+.factor{
+  display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#374151;
+  padding:7px 11px;background:#F5F9FD;border-radius:8px;
+  border-left:3px solid #DCE7F5;
+  transition:background .15s,transform .18s;
+  animation:factorIn .26s var(--spring) both;
+}
+.factor:hover{background:#EAF2F9;transform:translateX(2px)}
+.factor-score{font-weight:800;min-width:28px;font-size:12px;letter-spacing:-.3px}
+.zero-factor{
+  text-align:center;font-size:11px;color:#94A3B8;padding:12px 0;
+  font-weight:500;font-style:italic;
+}
+
+/* ══ DECISION CARD ═══════════════════════════════════════════ */
+.dec-card{
+  border-left:4px solid;border-radius:0 12px 12px 0;
+  padding:13px 15px;margin-bottom:14px;
+  transition:background .3s,border-color .3s,box-shadow .3s;
+  box-shadow:var(--sh-sm);
+}
+.dec-card.tier-flash{animation:decFlash .38s var(--ease-std)}
+.dec-action{font-size:15px;font-weight:700;letter-spacing:-.2px}
+.dec-sub{font-size:11px;color:#555;margin-top:3px;font-weight:400;line-height:1.45}
+.dec-meta{
+  margin-top:9px;font-size:10px;color:#7B8FA6;
+  background:rgba(255,255,255,.68);padding:3px 10px;border-radius:6px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  font-family:'Fira Code',monospace;
+}
+
+/* ══ TIER ROWS ═══════════════════════════════════════════════ */
+.tier-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:7px 11px;border-radius:9px;border:1.5px solid transparent;
+  transition:background .25s,border-color .25s,transform .22s var(--spring);
+  margin-bottom:4px;cursor:default;
+}
+.tier-row.active-anim{animation:tierPop .38s var(--spring)}
+.tier-score{font-size:12px;font-weight:700;letter-spacing:-.2px}
+.tier-act{font-size:11px;color:var(--muted);font-weight:500}
+.tier-badge{font-size:10px;color:#fff;padding:2px 8px;border-radius:5px;font-weight:700;display:none}
+
+/* ══ PHONE ═══════════════════════════════════════════════════ */
+.phone-wrap{display:flex;justify-content:center;margin-top:14px}
+.phone{
+  width:152px;border:2.5px solid var(--low);border-radius:24px;overflow:hidden;
+  transition:border-color .35s,box-shadow .35s;
+  box-shadow:0 10px 32px rgba(0,0,0,.14),0 2px 8px rgba(0,0,0,.07);
+}
+.phone.critical{animation:critGlow 1.6s ease-in-out infinite}
+.phone-bar{
+  background:linear-gradient(135deg,#071E3D,#1B4F8A);
+  padding:7px 13px;display:flex;justify-content:space-between;align-items:center;
+}
+.phone-scr{padding:13px 11px;text-align:center;min-height:122px;transition:background .35s}
+.phone-act{
+  border-radius:9px;padding:8px 0;font-size:11px;font-weight:700;
+  margin-top:10px;transition:background .35s,box-shadow .35s;color:#fff;
+  box-shadow:0 3px 10px rgba(0,0,0,.24);
+}
+
+.soc-alert{
+  background:linear-gradient(135deg,#FEF2F2,#FEE2E2);
+  border:1.5px solid #FCA5A5;border-radius:9px;
+  padding:10px 13px;margin-top:10px;font-size:10px;
+  color:var(--crit-txt);display:none;
+  box-shadow:0 3px 12px rgba(163,45,45,.11);
+}
+.soc-alert.show{display:block;animation:socIn .3s var(--ease-out)}
+
+/* ══ LOG ════════════════════════════════════════════════════ */
 .log-sec{margin-top:14px}
-.log-entry{display:flex;align-items:center;gap:9px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);margin-bottom:3px}
+.log-entry{
+  display:flex;align-items:center;gap:10px;padding:6px 13px;
+  border-radius:8px;border:1px solid var(--border);margin-bottom:4px;
+  transition:box-shadow .15s,transform .18s;
+}
+.log-entry:hover{box-shadow:var(--sh-sm);transform:translateX(2px)}
+.log-entry.new{animation:logSlideIn .32s var(--spring) both}
 
-/* ── API EXPLORER ─────────────────────────── */
+/* ══ SCROLLBAR ══════════════════════════════════════════════ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:#EEF4FA}
+::-webkit-scrollbar-thumb{background:#C4CEDF;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#98B5D5}
+
+/* ══ API EXPLORER ═══════════════════════════════════════════ */
 .api-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-.api-pane{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.api-pane-hdr{background:#1E293B;color:#94A3B8;font-size:11px;font-weight:600;padding:7px 14px;display:flex;justify-content:space-between;align-items:center}
+.api-pane{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;box-shadow:var(--sh-sm);
+}
+.api-pane-hdr{
+  background:#1A2740;color:#94A3B8;font-size:11px;font-weight:600;
+  padding:9px 15px;display:flex;justify-content:space-between;align-items:center;
+}
 .api-pane-hdr span{color:#E2E8F0}
-.json-body{background:#0F172A;color:#E2E8F0;font-size:11px;font-family:'Fira Code','Consolas',monospace;padding:12px 14px;overflow:auto;max-height:340px;white-space:pre}
-.json-key{color:#7DD3FC}.json-str{color:#86EFAC}.json-num{color:#FDE68A}.json-bool{color:#F9A8D4}
-.curl-box{background:#1E293B;border-radius:8px;padding:10px 14px;font-size:11px;font-family:monospace;color:#86EFAC;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-top:10px}
-.copy-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer;transition:.15s}
-.copy-btn:hover{background:rgba(255,255,255,.2)}
-.ondev-box{background:var(--low-bg);border:1px solid rgba(15,110,86,.25);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--low-txt)}
-.ondev-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dashed rgba(15,110,86,.15)}
+.json-body{
+  background:#0C1629;color:#E2E8F0;font-size:11px;
+  font-family:'Fira Code','Consolas',monospace;
+  padding:14px;overflow:auto;max-height:340px;white-space:pre;line-height:1.72;
+}
+.json-key{color:#7DD3FC}.json-str{color:#86EFAC}
+.json-num{color:#FDE68A}.json-bool{color:#F9A8D4}
+
+.curl-box{
+  background:#1A2740;border-radius:10px;padding:13px 15px;
+  font-size:11px;font-family:'Fira Code','Consolas',monospace;color:#86EFAC;
+  overflow:auto;white-space:pre-wrap;word-break:break-all;
+  margin-top:10px;box-shadow:var(--sh-sm);
+}
+.copy-btn{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  color:#fff;border-radius:5px;padding:2px 10px;font-size:10px;
+  cursor:pointer;transition:background .15s,transform .15s var(--spring);font-family:inherit;
+}
+.copy-btn:hover{background:rgba(255,255,255,.22);transform:scale(1.06)}
+
+.ondev-box{
+  background:linear-gradient(135deg,#ECFDF5,#D1FAE5);
+  border:1px solid rgba(15,110,86,.2);border-radius:9px;
+  padding:11px 14px;font-size:11px;color:var(--low-txt);
+}
+.ondev-row{
+  display:flex;justify-content:space-between;padding:3px 0;
+  border-bottom:1px dashed rgba(15,110,86,.15);font-weight:500;
+}
 .ondev-row:last-child{border:0}
-.privacy-badge{display:inline-flex;align-items:center;gap:4px;background:var(--low-bg);border:1px solid rgba(15,110,86,.3);border-radius:12px;padding:3px 9px;font-size:10px;font-weight:600;color:var(--low);margin-bottom:10px}
+.privacy-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:linear-gradient(135deg,#ECFDF5,#D1FAE5);
+  border:1px solid rgba(15,110,86,.3);border-radius:20px;
+  padding:4px 13px;font-size:10px;font-weight:700;color:var(--low);margin-bottom:10px;
+}
 .api-integrations{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
-.api-int-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
-.api-int-name{font-size:12px;font-weight:600;color:var(--blue);margin-bottom:3px}
-.api-int-point{font-size:10px;color:var(--muted);margin-bottom:2px}
-.api-int-data{font-size:10px;color:#888}
-.api-status-badge{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600;float:right}
-.status-live{background:#D1FAE5;color:#065F46}
-.status-mock{background:#FEF3C7;color:#92400E}
+.api-int-card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 13px;transition:all .2s;box-shadow:var(--sh-sm);
+}
+.api-int-card:hover{box-shadow:var(--sh);transform:translateY(-2px)}
+.api-int-name{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.api-int-point{font-size:10px;color:var(--muted);margin-bottom:2px;font-weight:500}
+.api-int-data{font-size:10px;color:#9CA3AF}
+.api-status-badge{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;float:right}
+.status-live{background:linear-gradient(135deg,#D1FAE5,#A7F3D0);color:#065F46}
+.status-mock{background:linear-gradient(135deg,#FEF3C7,#FDE68A);color:#92400E}
 
-/* ── COMPLIANCE ─────────────────────────────── */
+/* ══ COMPLIANCE ═════════════════════════════════════════════ */
 .comp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
-.comp-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
-.comp-icon{font-size:24px;margin-bottom:8px}
-.comp-name{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:4px}
-.comp-approach{font-size:11px;color:#555;line-height:1.5;margin-bottom:8px}
-.comp-status{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600}
-.s-compliant{background:#D1FAE5;color:#065F46}.s-aligned{background:#DBEAFE;color:#1E40AF}.s-passed{background:#EDE9FE;color:#5B21B6}.s-design{background:#FEF3C7;color:#92400E}
-.privacy-principles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.priv-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px}
-.priv-card-title{font-size:12px;font-weight:600;color:var(--blue);margin-bottom:4px}
-.priv-card-body{font-size:11px;color:#555;line-height:1.5}
-.data-flow{margin-top:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
-.flow-row{display:flex;align-items:center;gap:0;margin-bottom:6px}
-.flow-box{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-align:center;min-width:120px}
-.flow-arrow{color:var(--muted);font-size:18px;padding:0 4px}
-.flow-ondev{background:#DCFCE7;border:1px solid #86EFAC;color:#15803D}
-.flow-server{background:#DBEAFE;border:1px solid #93C5FD;color:#1D4ED8}
-.flow-block{background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B}
-.flow-stored{background:#F3F4F6;border:1px solid #D1D5DB;color:#374151}
+.comp-card{
+  background:var(--card);border:1px solid var(--border);border-radius:13px;
+  padding:16px;transition:all .22s;box-shadow:var(--sh-sm);
+}
+.comp-card:hover{box-shadow:var(--sh);transform:translateY(-3px)}
+.comp-icon{font-size:26px;margin-bottom:10px;display:block}
+.comp-name{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:5px}
+.comp-approach{font-size:11px;color:#4B5563;line-height:1.55;margin-bottom:10px}
+.comp-status{display:inline-block;padding:3px 11px;border-radius:5px;font-size:11px;font-weight:700}
+.s-compliant{background:linear-gradient(135deg,#D1FAE5,#A7F3D0);color:#065F46}
+.s-aligned{background:linear-gradient(135deg,#DBEAFE,#BFDBFE);color:#1E40AF}
+.s-passed{background:linear-gradient(135deg,#EDE9FE,#DDD6FE);color:#5B21B6}
+.s-design{background:linear-gradient(135deg,#FEF3C7,#FDE68A);color:#92400E}
 
-/* ── ARCHITECTURE ─────────────────────────── */
+.privacy-principles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.priv-card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:13px;box-shadow:var(--sh-sm);transition:all .2s;
+}
+.priv-card:hover{box-shadow:var(--sh);transform:translateY(-2px)}
+.priv-card-title{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.priv-card-body{font-size:11px;color:#4B5563;line-height:1.5}
+
+.data-flow{
+  margin-top:14px;background:var(--card);border:1px solid var(--border);
+  border-radius:13px;padding:16px;box-shadow:var(--sh-sm);
+}
+.flow-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.flow-box{padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;text-align:center;min-width:120px}
+.flow-arrow{color:#98B5D5;font-size:18px}
+.flow-ondev{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1px solid rgba(15,110,86,.25);color:#065F46}
+.flow-server{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1px solid rgba(59,130,246,.3);color:#1D4ED8}
+.flow-block{background:linear-gradient(135deg,#FEF2F2,#FEE2E2);border:1px solid rgba(239,68,68,.3);color:#991B1B}
+.flow-stored{background:linear-gradient(135deg,#F9FAFB,#F3F4F6);border:1px solid #D1D5DB;color:#374151}
+
+/* ══ ARCHITECTURE ═══════════════════════════════════════════ */
 .arch-flow{display:flex;flex-direction:column;gap:12px;margin-top:14px}
 .arch-row{display:flex;gap:10px;align-items:stretch}
-.arch-box{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.arch-box{
+  flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:11px 13px;box-shadow:var(--sh-sm);transition:all .2s;
+}
+.arch-box:hover{box-shadow:var(--sh);transform:translateY(-2px)}
 .arch-box-title{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px}
-.arch-box-sub{font-size:10px;color:var(--muted)}
-.arch-center{background:#1B4F8A;color:#fff;border-radius:10px;padding:14px;text-align:center;flex:2}
-.arch-center-title{font-size:14px;font-weight:700;margin-bottom:3px}
-.arch-center-sub{font-size:11px;color:rgba(255,255,255,.7)}
-.arch-down{text-align:center;color:var(--muted);font-size:20px}
+.arch-box-sub{font-size:10px;color:var(--muted);line-height:1.45}
+.arch-center{
+  background:linear-gradient(135deg,#05172E 0%,#0D2F5A 38%,#1B4F8A 72%,#1E5EA5 100%);
+  color:#fff;border-radius:13px;padding:17px;text-align:center;flex:2;
+  box-shadow:0 10px 34px rgba(5,23,46,.35);
+}
+.arch-center-title{font-size:15px;font-weight:800;margin-bottom:4px;letter-spacing:-.2px}
+.arch-center-sub{font-size:11px;color:rgba(255,255,255,.7);line-height:1.5}
+.arch-down{text-align:center;color:#98B5D5;font-size:22px;letter-spacing:.5px}
 .arch-tiers{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
-.arch-tier{border-radius:8px;padding:8px 10px;text-align:center}
-.arch-tier-score{font-size:10px;font-weight:700;margin-bottom:2px}
-.arch-tier-act{font-size:11px;font-weight:600}
-.arch-privacy{background:var(--blue);color:#fff;border-radius:8px;padding:10px 14px;text-align:center;font-size:11px;opacity:.9}
+.arch-tier{border-radius:10px;padding:10px 11px;text-align:center;box-shadow:var(--sh-sm);transition:all .2s}
+.arch-tier:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.arch-tier-score{font-size:11px;font-weight:700;margin-bottom:3px}
+.arch-tier-act{font-size:12px;font-weight:700}
+.arch-privacy{
+  background:linear-gradient(135deg,#05172E 0%,#1B4F8A 100%);
+  color:rgba(255,255,255,.9);border-radius:10px;padding:11px 16px;
+  text-align:center;font-size:11px;
+  box-shadow:0 6px 18px rgba(5,23,46,.28);
+}
+
 .stack-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
-.stack-table th{background:#EDF2F8;color:var(--blue);font-weight:600;padding:7px 12px;text-align:left;border-bottom:2px solid var(--border)}
-.stack-table td{padding:6px 12px;border-bottom:1px solid var(--border);color:#444;vertical-align:top}
+.stack-table th{
+  background:linear-gradient(135deg,#EBF2FF,#E0ECFF);color:var(--blue);
+  font-weight:700;padding:8px 12px;text-align:left;
+  border-bottom:2px solid rgba(27,79,138,.12);
+  font-size:10px;text-transform:uppercase;letter-spacing:.5px;
+}
+.stack-table td{padding:7px 12px;border-bottom:1px solid var(--border);color:#374151;vertical-align:top;font-weight:500}
 .stack-table tr:last-child td{border:0}
-.stack-table tr:hover td{background:#F8FAFD}
-.metrics-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:10px;margin-top:14px}
-.metric-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
-.metric-val{font-size:20px;font-weight:700;color:var(--blue)}
-.metric-lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.stack-table tr:hover td{background:#F2F7FF;transition:background .12s}
+
+.metrics-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric-card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px;text-align:center;box-shadow:var(--sh-sm);
+  transition:all .22s;border-top:3px solid;
+  border-top-color:var(--blue);
+}
+.metric-card:hover{box-shadow:var(--sh);transform:translateY(-3px)}
+.metric-val{
+  font-size:22px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,#1B4F8A,#2563EB);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.metric-lbl{font-size:10px;color:var(--muted);margin-top:3px;font-weight:500}
 </style>
 </head>
 <body>
 
-<!-- ── HEADER ─────────────────────────────────────────────────── -->
+<!-- ══ HEADER ═════════════════════════════════════════════════ -->
 <div class="hdr">
   <div class="hdr-l">
-    <span class="logo">🛡 TrustPulse</span>
+    <span class="logo">🛡 Trust<em>Pulse</em></span>
     <span class="tagline">Zero-Friction Adaptive Identity Trust Engine</span>
   </div>
   <div class="hdr-r">
@@ -197,7 +574,7 @@ select:focus{border-color:var(--blue)}
   </div>
 </div>
 
-<!-- ── TABS ──────────────────────────────────────────────────── -->
+<!-- ══ TABS ═══════════════════════════════════════════════════ -->
 <nav class="tabs">
   <button class="tb on" onclick="switchTab('sim',this)">⚡ Live Simulator</button>
   <button class="tb" onclick="switchTab('api',this)">🔌 API Explorer</button>
@@ -213,17 +590,17 @@ select:focus{border-color:var(--blue)}
   <!-- Scenario bar -->
   <div class="sc-bar">
     <label>Scenarios:</label>
-    <button class="sc-btn" onclick="scene(0)" style="background:#0F6E56">Normal session</button>
-    <button class="sc-btn" onclick="scene(1)" style="background:#BA7517">New device login</button>
-    <button class="sc-btn" onclick="scene(2)" style="background:#BA7517">High-value + new payee</button>
-    <button class="sc-btn" onclick="scene(3)" style="background:#BA7517">Account recovery</button>
-    <button class="sc-btn" onclick="scene(4)" style="background:#993C1D">SIM swap attempt</button>
-    <button class="sc-btn" onclick="scene(5)" style="background:#993C1D">Insider threat</button>
-    <button class="sc-btn" onclick="scene(6)" style="background:#993C1D">Suspicious admin</button>
-    <button class="sc-btn" onclick="scene(7)" style="background:#A32D2D">Account takeover</button>
+    <button class="sc-btn" onclick="scene(0)" style="background:linear-gradient(135deg,#0A5C47,#0F6E56)">Normal session</button>
+    <button class="sc-btn" onclick="scene(1)" style="background:linear-gradient(135deg,#9A6012,#BA7517)">New device login</button>
+    <button class="sc-btn" onclick="scene(2)" style="background:linear-gradient(135deg,#9A6012,#BA7517)">High-value + new payee</button>
+    <button class="sc-btn" onclick="scene(3)" style="background:linear-gradient(135deg,#9A6012,#BA7517)">Account recovery</button>
+    <button class="sc-btn" onclick="scene(4)" style="background:linear-gradient(135deg,#7B3018,#993C1D)">SIM swap attempt</button>
+    <button class="sc-btn" onclick="scene(5)" style="background:linear-gradient(135deg,#7B3018,#993C1D)">Insider threat</button>
+    <button class="sc-btn" onclick="scene(6)" style="background:linear-gradient(135deg,#7B3018,#993C1D)">Suspicious admin</button>
+    <button class="sc-btn" onclick="scene(7)" style="background:linear-gradient(135deg,#8A2020,#A32D2D)">Account takeover</button>
   </div>
 
-  <div class="sim-grid">
+  <div class="sim-grid" id="sim-grid">
 
     <!-- LEFT: Signal Controls ─────────────────────────── -->
     <div class="sig-col">
@@ -231,20 +608,20 @@ select:focus{border-color:var(--blue)}
       <!-- Device Trust -->
       <div class="card">
         <div class="sec">Device Trust</div>
-        <label class="tgl" style="margin-bottom:5px">
+        <label class="tgl" style="margin-bottom:6px">
           <input type="checkbox" id="i-kd" checked onchange="upd()">
           <span class="tgl-tr"></span>Known device fingerprint
         </label>
-        <div class="sl-row" style="margin-bottom:5px">
+        <div class="sl-row" style="margin-bottom:6px">
           <span class="sl-lbl">Health</span>
           <input type="range" id="i-hlth" min="0" max="100" value="100" oninput="onSlider('i-hlth','hlth-v'); upd()">
           <span class="sl-val" id="hlth-v" style="color:var(--low)">100%</span>
         </div>
-        <label class="tgl" style="margin-bottom:5px">
+        <label class="tgl" style="margin-bottom:6px">
           <input type="checkbox" id="i-vpn" onchange="upd()">
           <span class="tgl-tr"></span>VPN detected
         </label>
-        <div class="sl-row" style="margin-bottom:5px">
+        <div class="sl-row" style="margin-bottom:6px">
           <span class="sl-lbl">Network</span>
           <select id="i-net" onchange="upd()" style="flex:1">
             <option value="wifi">WiFi (trusted)</option>
@@ -269,13 +646,13 @@ select:focus{border-color:var(--blue)}
       <!-- Behavioural Biometrics -->
       <div class="card">
         <div class="sec">Behavioural Biometrics</div>
-        <div class="priv-note" style="margin-bottom:8px">🔒 Processed on-device · score only transmitted</div>
-        <div class="sl-row" style="margin-bottom:5px">
+        <div class="priv-note" style="margin-bottom:9px">🔒 On-device only · score transmitted</div>
+        <div class="sl-row" style="margin-bottom:6px">
           <span class="sl-lbl">Keystroke</span>
           <input type="range" id="i-ks" min="0" max="100" value="0" oninput="onSlider('i-ks','ks-v'); upd()">
           <span class="sl-val" id="ks-v" style="color:var(--low)">0%</span>
         </div>
-        <div class="sl-row" style="margin-bottom:5px">
+        <div class="sl-row" style="margin-bottom:6px">
           <span class="sl-lbl">Touch</span>
           <input type="range" id="i-ta" min="0" max="100" value="0" oninput="onSlider('i-ta','ta-v'); upd()">
           <span class="sl-val" id="ta-v" style="color:var(--low)">0%</span>
@@ -285,18 +662,18 @@ select:focus{border-color:var(--blue)}
           <input type="range" id="i-ga" min="0" max="100" value="0" oninput="onSlider('i-ga','ga-v'); upd()">
           <span class="sl-val" id="ga-v" style="color:var(--low)">0%</span>
         </div>
-        <div style="font-size:9px;color:#AAA;margin-top:4px">✦ Gait: mobile native SDK (accelerometer)</div>
+        <div style="font-size:9px;color:#98B5D5;margin-top:5px;font-style:italic">✦ Gait: mobile native SDK (accelerometer)</div>
       </div>
 
       <!-- Context -->
       <div class="card">
         <div class="sec">Context</div>
-        <div class="sl-row" style="margin-bottom:5px">
+        <div class="sl-row" style="margin-bottom:6px">
           <span class="sl-lbl">Location</span>
           <input type="range" id="i-loc" min="0" max="100" value="0" oninput="onSlider('i-loc','loc-v'); upd()">
           <span class="sl-val" id="loc-v" style="color:var(--low)">0%</span>
         </div>
-        <div class="sl-row" style="margin-bottom:5px">
+        <div class="sl-row" style="margin-bottom:6px">
           <span class="sl-lbl">Time</span>
           <input type="range" id="i-time" min="0" max="100" value="0" oninput="onSlider('i-time','time-v'); upd()">
           <span class="sl-val" id="time-v" style="color:var(--low)">0%</span>
@@ -310,15 +687,15 @@ select:focus{border-color:var(--blue)}
       <!-- Session History -->
       <div class="card">
         <div class="sec">Session History</div>
-        <div style="font-size:11px;color:#666;margin-bottom:4px">Failed attempts (last hour)</div>
-        <div class="btn-grp" style="margin-bottom:9px">
+        <div style="font-size:11px;color:#6B7280;margin-bottom:5px;font-weight:500">Failed attempts (last hour)</div>
+        <div class="btn-grp" style="margin-bottom:10px">
           <button id="fa0" class="grp-btn on" onclick="setFa(0)">0</button>
           <button id="fa1" class="grp-btn" onclick="setFa(1)">1</button>
           <button id="fa2" class="grp-btn" onclick="setFa(2)">2</button>
           <button id="fa3" class="grp-btn" onclick="setFa(3)">3+</button>
         </div>
-        <div style="font-size:11px;color:#666;margin-bottom:4px">Concurrent sessions</div>
-        <div class="btn-grp" style="margin-bottom:9px">
+        <div style="font-size:11px;color:#6B7280;margin-bottom:5px;font-weight:500">Concurrent sessions</div>
+        <div class="btn-grp" style="margin-bottom:10px">
           <button id="cs1" class="grp-btn on" onclick="setCs(1)">1</button>
           <button id="cs2" class="grp-btn" onclick="setCs(2)">2 (+3)</button>
           <button id="cs3" class="grp-btn" onclick="setCs(3)">3+ (+10)</button>
@@ -332,22 +709,46 @@ select:focus{border-color:var(--blue)}
     </div><!-- /sig-col -->
 
     <!-- CENTER: Score + Event + Breakdown ─────────────── -->
-    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+    <div class="card" style="display:flex;flex-direction:column;gap:13px">
 
       <!-- Gauge -->
       <div class="gauge-wrap">
-        <svg id="gsv" viewBox="0 0 260 148" style="width:100%;max-width:260px">
-          <path d="M 30 132 A 100 100 0 0 1 230 132" fill="none" stroke="#EEF2F8" stroke-width="14" stroke-linecap="round"/>
-          <path id="gf" d="M 30 132 A 100 100 0 0 1 230 132" fill="none" stroke="var(--low)" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 315" style="transition:stroke-dasharray .5s,stroke .3s"/>
-          <text id="gscore" x="130" y="105" text-anchor="middle" dominant-baseline="central" style="font-size:50px;font-weight:700;fill:var(--low);transition:fill .3s">0</text>
-          <text x="130" y="125" text-anchor="middle" style="font-size:10px;fill:#AAA">TRUST SCORE</text>
-          <text x="22" y="143" text-anchor="middle" style="font-size:9px;fill:#CCC">0</text>
-          <text x="238" y="143" text-anchor="middle" style="font-size:9px;fill:#CCC">100</text>
+        <svg id="gsv" viewBox="0 0 260 150" style="width:100%;max-width:270px">
+          <defs>
+            <linearGradient id="riskSpectrumGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#0F6E56" stop-opacity=".22"/>
+              <stop offset="40%"  stop-color="#BA7517" stop-opacity=".22"/>
+              <stop offset="72%"  stop-color="#993C1D" stop-opacity=".22"/>
+              <stop offset="100%" stop-color="#A32D2D" stop-opacity=".22"/>
+            </linearGradient>
+            <filter id="gaugeGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.5" result="blur"/>
+              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+          </defs>
+          <!-- Risk spectrum background ring -->
+          <path d="M 30 133 A 100 100 0 0 1 230 133" fill="none" stroke="url(#riskSpectrumGrad)" stroke-width="14" stroke-linecap="round"/>
+          <!-- Track -->
+          <path d="M 30 133 A 100 100 0 0 1 230 133" fill="none" stroke="#E3EDF8" stroke-width="14" stroke-linecap="round" opacity=".6"/>
+          <!-- Tier tick marks at 30, 60, 85 -->
+          <line x1="74" y1="55" x2="67" y2="45" stroke="#D0DCEA" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="160" y1="42" x2="163" y2="30" stroke="#D0DCEA" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="215" y1="89" x2="225" y2="84" stroke="#D0DCEA" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="57"  y="40" text-anchor="middle" style="font-size:8px;fill:#BCCBD8;font-family:Inter,sans-serif;font-weight:600">30</text>
+          <text x="162" y="24" text-anchor="middle" style="font-size:8px;fill:#BCCBD8;font-family:Inter,sans-serif;font-weight:600">60</text>
+          <text x="234" y="82" text-anchor="middle" style="font-size:8px;fill:#BCCBD8;font-family:Inter,sans-serif;font-weight:600">85</text>
+          <!-- Active fill (colour set by JS) -->
+          <path id="gf" d="M 30 133 A 100 100 0 0 1 230 133" fill="none" stroke="#0F6E56" stroke-width="17" stroke-linecap="round" stroke-dasharray="0 315" style="transition:stroke-dasharray .55s cubic-bezier(.34,1.56,.64,1),stroke .3s ease;filter:url(#gaugeGlow)"/>
+          <!-- Score number -->
+          <text id="gscore" x="130" y="106" text-anchor="middle" dominant-baseline="central" style="font-size:52px;font-weight:800;fill:#0F6E56;transition:fill .3s ease;font-family:Inter,sans-serif;letter-spacing:-2px">0</text>
+          <text x="130" y="127" text-anchor="middle" style="font-size:9.5px;fill:#98B5D5;font-family:Inter,sans-serif;font-weight:700;letter-spacing:1.4px">TRUST SCORE</text>
+          <text x="22" y="144" text-anchor="middle" style="font-size:9px;fill:#BCCBD8;font-family:Inter,sans-serif">0</text>
+          <text x="238" y="144" text-anchor="middle" style="font-size:9px;fill:#BCCBD8;font-family:Inter,sans-serif">100</text>
         </svg>
         <div class="risk-row">
           <span class="badge" id="rbadge" style="background:var(--low)">Low risk</span>
           <span class="lat-pill" id="rlat">⏱ 42 ms</span>
-          <span class="lat-pill" id="rcap" style="display:none;background:#FEF3C7;color:#92400E">⚡ Score capped</span>
+          <span class="lat-pill" id="rcap" style="display:none;background:#FEF3C7;color:#92400E;border-color:rgba(217,119,6,.2)">⚡ Score capped</span>
         </div>
       </div>
 
@@ -362,11 +763,10 @@ select:focus{border-color:var(--blue)}
           <button class="ev-btn" data-ev="admin_access" data-pts="30" onclick="setEv(this)"><span>Admin access</span><span class="pts">+30</span></button>
           <button class="ev-btn" data-ev="sim_activity" data-pts="35" onclick="setEv(this)"><span>SIM activity</span><span class="pts">+35</span></button>
         </div>
-        <!-- Transfer extras -->
-        <div id="transfer-extras" style="display:none;margin-top:8px">
-          <div class="inp-row" style="margin-bottom:5px">
-            <span style="font-size:11px;color:#666;min-width:64px">Amount (₹)</span>
-            <input type="text" id="i-amount" placeholder="e.g. 500000" oninput="upd()" style="flex:1">
+        <div id="transfer-extras" style="display:none;margin-top:9px">
+          <div class="inp-row" style="margin-bottom:6px">
+            <span style="font-size:11px;color:#6B7280;min-width:64px;font-weight:500">Amount (₹)</span>
+            <input type="text" id="i-amount" placeholder="e.g. 500000" oninput="upd()">
           </div>
           <label class="tgl">
             <input type="checkbox" id="i-nb" onchange="upd()">
@@ -393,17 +793,15 @@ select:focus{border-color:var(--blue)}
     <div class="card">
       <div class="sec">Adaptive Response</div>
 
-      <!-- Current decision card -->
       <div class="dec-card" id="dcard">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span class="dec-action" id="dact">Silent pass</span>
-          <span class="badge" id="dbadge" style="font-size:10px;padding:2px 7px">Low</span>
+          <span class="badge" id="dbadge" style="font-size:10px;padding:2px 8px">Low</span>
         </div>
         <div class="dec-sub" id="dsub">Zero friction — session continues</div>
-        <div class="dec-meta">Score: <strong id="dsnum" style="color:var(--low-txt)">0</strong>/100 · <span id="dlat">42 ms</span> · <span id="daud" style="font-size:9px;color:#AAA"></span></div>
+        <div class="dec-meta">Score: <strong id="dsnum" style="color:var(--low-txt)">0</strong>/100 · <span id="dlat">42 ms</span> · <span id="daud" style="opacity:.6"></span></div>
       </div>
 
-      <!-- Response tiers -->
       <div class="sec">Response Tiers</div>
       <div id="tiers">
         <div class="tier-row" data-t="low">
@@ -428,24 +826,28 @@ select:focus{border-color:var(--blue)}
         </div>
       </div>
 
-      <!-- Phone mockup -->
       <div class="phone-wrap">
         <div class="phone" id="phone">
           <div class="phone-bar">
-            <span style="color:#fff;font-size:9px;font-weight:600">BOB Bank</span>
-            <span style="color:rgba(255,255,255,.5);font-size:8px">9:41</span>
+            <span style="color:#fff;font-size:9px;font-weight:700;letter-spacing:.3px">BOB Bank</span>
+            <div style="display:flex;align-items:center;gap:4px">
+              <svg width="10" height="7" viewBox="0 0 10 7" fill="rgba(255,255,255,.55)">
+                <rect x="0" y="4" width="2" height="3" rx=".4"/><rect x="2.8" y="2.5" width="2" height="4.5" rx=".4"/>
+                <rect x="5.6" y="1" width="2" height="6" rx=".4"/><rect x="8.4" y="0" width="1.6" height="7" rx=".4"/>
+              </svg>
+              <span style="color:rgba(255,255,255,.5);font-size:8px;font-weight:500">9:41</span>
+            </div>
           </div>
           <div class="phone-scr" id="pscr">
-            <div style="font-size:10px;color:#777" id="ptx1">Sending ₹45,000</div>
-            <div style="font-size:11px;font-weight:600;margin:2px 0" id="ptx2">Ramesh Kumar</div>
-            <div style="font-size:9px;color:#AAA;margin-bottom:9px" id="ptx3">HDFC ···· 4821</div>
+            <div style="font-size:10px;color:#6B7280" id="ptx1">Sending ₹45,000</div>
+            <div style="font-size:11px;font-weight:700;margin:3px 0;color:#0D1B2E" id="ptx2">Ramesh Kumar</div>
+            <div style="font-size:9px;color:#98B5D5;margin-bottom:11px" id="ptx3">HDFC ···· 4821</div>
             <div class="phone-act" id="pact">✓ Authorised</div>
-            <div id="psub" style="font-size:9px;color:#AAA;margin-top:5px">No friction</div>
+            <div id="psub" style="font-size:9px;color:#98B5D5;margin-top:6px">No friction</div>
           </div>
         </div>
       </div>
 
-      <!-- SOC alert (critical only) -->
       <div class="soc-alert" id="soc-alert">
         🚨 <strong>SOC Alert Generated</strong><br>
         <span id="soc-detail">Session blocked. Audit ref logged to Hyperledger Besu. Customer helpline notified.</span>
@@ -456,8 +858,8 @@ select:focus{border-color:var(--blue)}
 
   <!-- Decision Log -->
   <div class="log-sec">
-    <div class="sec" style="margin-bottom:6px">Decision Log (last 8)</div>
-    <div id="dlog"><div style="font-size:11px;color:#AAA;padding:4px 0">Adjust signals above to generate log entries.</div></div>
+    <div class="sec" style="margin-bottom:7px">Decision Log (last 8)</div>
+    <div id="dlog"><div style="font-size:11px;color:#94A3B8;padding:4px 0;font-style:italic">Adjust signals above to generate log entries.</div></div>
   </div>
 
 </div><!-- /t-sim -->
@@ -470,33 +872,31 @@ select:focus{border-color:var(--blue)}
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;flex-wrap:wrap;gap:8px">
     <div>
-      <div style="font-size:14px;font-weight:600;color:var(--blue);margin-bottom:2px">REST API — POST /v1/score</div>
+      <div style="font-size:14px;font-weight:700;color:var(--blue);margin-bottom:2px;letter-spacing:-.2px">REST API — POST /v1/score</div>
       <div style="font-size:11px;color:var(--muted)">Real-time trust score computation in &lt;80 ms · Privacy-preserving payload</div>
     </div>
     <div class="privacy-badge">🔒 Raw biometrics never leave the device</div>
   </div>
 
   <div class="api-grid">
-    <!-- On-device panel -->
     <div class="api-pane">
       <div class="api-pane-hdr">
         <span>📱 Processed On-Device (never transmitted)</span>
-        <span style="color:#4ADE80;font-size:10px">TF Lite · Private</span>
+        <span style="color:#4ADE80;font-size:10px;font-weight:600">TF Lite · Private</span>
       </div>
-      <div class="ondev-box" style="margin:10px;border-radius:6px">
-        <div style="font-size:11px;font-weight:600;color:var(--low-txt);margin-bottom:6px">Raw sensor data → on-device ML → anomaly score only</div>
+      <div class="ondev-box" style="margin:10px;border-radius:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--low-txt);margin-bottom:7px">Raw sensor data → on-device ML → anomaly score only</div>
         <div class="ondev-row"><span>Raw keystroke intervals (ms)</span><span style="color:var(--low)">🔒 On-device</span></div>
         <div class="ondev-row"><span>Touch pressure patterns (N)</span><span style="color:var(--low)">🔒 On-device</span></div>
         <div class="ondev-row"><span>Gait accelerometer data (g)</span><span style="color:var(--low)">🔒 On-device</span></div>
         <div class="ondev-row"><span>Biometric templates</span><span style="color:var(--low)">🔒 On-device</span></div>
         <div class="ondev-row"><span>Raw location coordinates</span><span style="color:var(--low)">🔒 On-device</span></div>
       </div>
-      <div style="padding:0 10px 10px;font-size:10px;color:var(--muted)">
+      <div style="padding:0 10px 10px;font-size:10px;color:var(--muted);line-height:1.5">
         DPDP Act 2023 §8(7): Only derived anomaly scores (0.0–1.0) are transmitted — never raw biometric data.
       </div>
     </div>
 
-    <!-- Transmitted payload -->
     <div class="api-pane">
       <div class="api-pane-hdr">
         <span>🌐 Transmitted to Server (derived scores only)</span>
@@ -506,28 +906,25 @@ select:focus{border-color:var(--blue)}
     </div>
   </div>
 
-  <!-- API Response -->
   <div class="api-pane" style="margin-top:12px">
     <div class="api-pane-hdr">
       <span>📥 API Response — <span id="res-badge" style="color:#4ADE80">200 OK</span></span>
-      <span style="color:#FDE68A;font-size:10px" id="res-lat">⏱ 42 ms</span>
+      <span style="color:#FDE68A;font-size:10px;font-weight:600" id="res-lat">⏱ 42 ms</span>
     </div>
     <div class="json-body" id="json-response">loading…</div>
   </div>
 
-  <!-- cURL -->
   <div style="margin-top:12px">
-    <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:5px;display:flex;justify-content:space-between">
+    <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
       <span>cURL Command</span>
       <button class="copy-btn" style="background:var(--blue);border-color:var(--blue)" onclick="copyCurl()">Copy cURL</button>
     </div>
     <div class="curl-box" id="curl-box">loading…</div>
   </div>
 
-  <!-- API Integrations -->
-  <div style="margin-top:18px">
-    <div style="font-size:13px;font-weight:600;color:var(--blue);margin-bottom:2px">External API Integrations</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Six authoritative data sources enriching the trust decision</div>
+  <div style="margin-top:20px">
+    <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:2px;letter-spacing:-.1px">External API Integrations</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:9px">Six authoritative data sources enriching the trust decision</div>
     <div class="api-integrations">
       <div class="api-int-card">
         <span class="api-status-badge status-live">LIVE</span>
@@ -575,7 +972,7 @@ select:focus{border-color:var(--blue)}
 <!-- TAB 3: COMPLIANCE                                         -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <div id="t-compliance" class="panel">
-  <div style="margin-top:6px;font-size:14px;font-weight:600;color:var(--blue)">Compliance &amp; Privacy Standards</div>
+  <div style="margin-top:6px;font-size:14px;font-weight:700;color:var(--blue);letter-spacing:-.2px">Compliance &amp; Privacy Standards</div>
   <div style="font-size:11px;color:var(--muted);margin-bottom:4px">TrustPulse is privacy-first by architecture, not by configuration.</div>
 
   <div class="comp-grid">
@@ -617,48 +1014,28 @@ select:focus{border-color:var(--blue)}
     </div>
   </div>
 
-  <!-- Privacy by Design Principles -->
-  <div style="margin-top:18px;font-size:13px;font-weight:600;color:var(--blue)">Privacy by Design — Seven Principles</div>
+  <div style="margin-top:20px;font-size:13px;font-weight:700;color:var(--blue);letter-spacing:-.1px">Privacy by Design — Seven Principles</div>
   <div class="privacy-principles">
-    <div class="priv-card">
-      <div class="priv-card-title">1. Proactive, not reactive</div>
-      <div class="priv-card-body">Privacy protections are built into the architecture at the design stage. TrustPulse was designed privacy-first, not retrofitted.</div>
-    </div>
-    <div class="priv-card">
-      <div class="priv-card-title">2. Privacy as the default</div>
-      <div class="priv-card-body">No action required from the user to protect their privacy. The most privacy-protective settings apply automatically.</div>
-    </div>
-    <div class="priv-card">
-      <div class="priv-card-title">3. Privacy embedded</div>
-      <div class="priv-card-body">On-device TF Lite inference means raw biometrics are never transmitted. The system cannot share what it never receives.</div>
-    </div>
-    <div class="priv-card">
-      <div class="priv-card-title">4. Full functionality</div>
-      <div class="priv-card-body">Strong security AND strong privacy. The two are not traded off — 85%+ sessions see zero friction while all sessions remain protected.</div>
-    </div>
-    <div class="priv-card">
-      <div class="priv-card-title">5. End-to-end security</div>
-      <div class="priv-card-body">AES-256 in transit and at rest. Hyperledger Besu audit trail is immutable. No behavioural profile is stored post-session.</div>
-    </div>
-    <div class="priv-card">
-      <div class="priv-card-title">6. Visibility &amp; transparency</div>
-      <div class="priv-card-body">Every step-up event requires explicit user consent. Users can request erasure of all associated data via the Right-to-Erasure API.</div>
-    </div>
+    <div class="priv-card"><div class="priv-card-title">1. Proactive, not reactive</div><div class="priv-card-body">Privacy protections are built into the architecture at the design stage. TrustPulse was designed privacy-first, not retrofitted.</div></div>
+    <div class="priv-card"><div class="priv-card-title">2. Privacy as the default</div><div class="priv-card-body">No action required from the user to protect their privacy. The most privacy-protective settings apply automatically.</div></div>
+    <div class="priv-card"><div class="priv-card-title">3. Privacy embedded</div><div class="priv-card-body">On-device TF Lite inference means raw biometrics are never transmitted. The system cannot share what it never receives.</div></div>
+    <div class="priv-card"><div class="priv-card-title">4. Full functionality</div><div class="priv-card-body">Strong security AND strong privacy. 85%+ sessions see zero friction while all sessions remain protected.</div></div>
+    <div class="priv-card"><div class="priv-card-title">5. End-to-end security</div><div class="priv-card-body">AES-256 in transit and at rest. Hyperledger Besu audit trail is immutable. No behavioural profile stored post-session.</div></div>
+    <div class="priv-card"><div class="priv-card-title">6. Visibility &amp; transparency</div><div class="priv-card-body">Every step-up event requires explicit user consent. Users can request erasure of all data via the Right-to-Erasure API.</div></div>
   </div>
 
-  <!-- Data Flow Diagram -->
   <div class="data-flow">
-    <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:10px">Data Flow — What Stays on Device vs What Reaches the Server</div>
-    <div class="flow-row" style="margin-bottom:8px">
+    <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:11px;letter-spacing:-.1px">Data Flow — What Stays on Device vs What Reaches the Server</div>
+    <div class="flow-row" style="margin-bottom:10px">
       <div class="flow-box flow-ondev">📱 Raw biometrics<br><span style="font-size:9px;font-weight:400">Keystroke · Touch · Gait</span></div>
       <span class="flow-arrow">→</span>
       <div class="flow-box flow-ondev">🧠 TF Lite Model<br><span style="font-size:9px;font-weight:400">On-device inference</span></div>
       <span class="flow-arrow">→</span>
       <div class="flow-box flow-server">📊 Anomaly score (0–1)<br><span style="font-size:9px;font-weight:400">Transmitted only</span></div>
       <span class="flow-arrow">→</span>
-      <div class="flow-box flow-server" style="background:#DBEAFE">⚙️ Risk Engine<br><span style="font-size:9px;font-weight:400">LightGBM · LSTM</span></div>
+      <div class="flow-box flow-server" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE)">⚙️ Risk Engine<br><span style="font-size:9px;font-weight:400">LightGBM · LSTM</span></div>
       <span class="flow-arrow">→</span>
-      <div class="flow-box flow-server" style="background:#EDE9FE;border-color:#A78BFA;color:#5B21B6">🔢 Trust score<br><span style="font-size:9px;font-weight:400">0–100 · &lt;80 ms</span></div>
+      <div class="flow-box flow-server" style="background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border-color:#C4B5FD;color:#5B21B6">🔢 Trust score<br><span style="font-size:9px;font-weight:400">0–100 · &lt;80 ms</span></div>
     </div>
     <div class="flow-row">
       <div class="flow-box flow-block">🚫 Never stored<br><span style="font-size:9px;font-weight:400">Raw biometrics · Location · Templates</span></div>
@@ -675,12 +1052,10 @@ select:focus{border-color:var(--blue)}
 <!-- TAB 4: ARCHITECTURE                                       -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <div id="t-arch" class="panel">
-  <div style="margin-top:6px;font-size:14px;font-weight:600;color:var(--blue)">System Architecture</div>
-  <div style="font-size:11px;color:var(--muted);margin-bottom:12px">End-to-end signal flow from user action to adaptive authentication response</div>
+  <div style="margin-top:6px;font-size:14px;font-weight:700;color:var(--blue);letter-spacing:-.2px">System Architecture</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:13px">End-to-end signal flow from user action to adaptive authentication response</div>
 
-  <!-- Flow Diagram -->
   <div class="arch-flow">
-    <!-- Signal collection -->
     <div class="arch-row">
       <div class="arch-box"><div class="arch-box-title">📱 Device Trust</div><div class="arch-box-sub">OS version · hardware fingerprint · IP reputation · VPN detection · network type</div></div>
       <div class="arch-box"><div class="arch-box-title">🧬 Behavioural Biometrics</div><div class="arch-box-sub">Keystroke cadence · touch pressure · scroll velocity · gait analysis (on-device TF Lite)</div></div>
@@ -688,30 +1063,28 @@ select:focus{border-color:var(--blue)}
       <div class="arch-box"><div class="arch-box-title">🏷 Event Semantics</div><div class="arch-box-sub">Event type · new device pairing · beneficiary add · OTP failures · admin escalation</div></div>
     </div>
     <div class="arch-down">↓ Signal aggregation via Apache Kafka ↓</div>
-    <!-- Risk engine -->
     <div class="arch-center">
       <div class="arch-center-title">⚙️ TrustPulse Risk Scoring Engine</div>
       <div class="arch-center-sub">Real-time ML ensemble · LightGBM gradient-boosted trees + PyTorch LSTM · Trust score 0–100 in &lt;80 ms · Redis score cache for sub-millisecond lookup</div>
     </div>
     <div class="arch-down">↓ Adaptive response selection ↓</div>
-    <!-- Response tiers -->
     <div class="arch-tiers">
-      <div class="arch-tier" style="background:var(--low-bg);border:1px solid rgba(15,110,86,.2)">
+      <div class="arch-tier" style="background:var(--low-bg);border:1px solid rgba(15,110,86,.18)">
         <div class="arch-tier-score" style="color:var(--low)">Score 0–30</div>
         <div class="arch-tier-act" style="color:var(--low-txt)">✓ Silent Pass</div>
         <div style="font-size:9px;color:var(--muted);margin-top:3px">Zero friction</div>
       </div>
-      <div class="arch-tier" style="background:var(--med-bg);border:1px solid rgba(186,117,23,.2)">
+      <div class="arch-tier" style="background:var(--med-bg);border:1px solid rgba(186,117,23,.18)">
         <div class="arch-tier-score" style="color:var(--med)">Score 31–60</div>
         <div class="arch-tier-act" style="color:var(--med-txt)">◉ Biometric Nudge</div>
         <div style="font-size:9px;color:var(--muted);margin-top:3px">Fingerprint / Face ID</div>
       </div>
-      <div class="arch-tier" style="background:var(--high-bg);border:1px solid rgba(153,60,29,.2)">
+      <div class="arch-tier" style="background:var(--high-bg);border:1px solid rgba(153,60,29,.18)">
         <div class="arch-tier-score" style="color:var(--high)">Score 61–85</div>
         <div class="arch-tier-act" style="color:var(--high-txt)">⌨ Step-Up Auth</div>
         <div style="font-size:9px;color:var(--muted);margin-top:3px">OTP + face liveness</div>
       </div>
-      <div class="arch-tier" style="background:var(--crit-bg);border:1px solid rgba(163,45,45,.2)">
+      <div class="arch-tier" style="background:var(--crit-bg);border:1px solid rgba(163,45,45,.18)">
         <div class="arch-tier-score" style="color:var(--crit)">Score 86–100</div>
         <div class="arch-tier-act" style="color:var(--crit-txt)">⛔ Block + Alert</div>
         <div style="font-size:9px;color:var(--muted);margin-top:3px">SOC notified · Human review</div>
@@ -721,8 +1094,7 @@ select:focus{border-color:var(--blue)}
     <div class="arch-privacy">🔒 Privacy &amp; Compliance Layer · DPDP Act 2023 · RBI Cybersecurity Framework · On-device signals · Hyperledger Besu immutable audit log</div>
   </div>
 
-  <!-- Performance Metrics -->
-  <div class="metrics-row" style="margin-top:16px">
+  <div class="metrics-row" style="margin-top:18px">
     <div class="metric-card"><div class="metric-val">85%+</div><div class="metric-lbl">Sessions zero friction</div></div>
     <div class="metric-card"><div class="metric-val">&lt;80ms</div><div class="metric-lbl">End-to-end latency</div></div>
     <div class="metric-card"><div class="metric-val">60%</div><div class="metric-lbl">False-positive reduction</div></div>
@@ -731,10 +1103,9 @@ select:focus{border-color:var(--blue)}
     <div class="metric-card"><div class="metric-val">99.95%</div><div class="metric-lbl">Production SLA</div></div>
   </div>
 
-  <!-- Tech Stack Table -->
-  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
     <div>
-      <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:6px">Technology Stack</div>
+      <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:7px;letter-spacing:-.1px">Technology Stack</div>
       <table class="stack-table">
         <thead><tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr></thead>
         <tbody>
@@ -752,7 +1123,7 @@ select:focus{border-color:var(--blue)}
       </table>
     </div>
     <div>
-      <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:6px">Pilot Deployment Plan</div>
+      <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:7px;letter-spacing:-.1px">Pilot Deployment Plan</div>
       <table class="stack-table">
         <thead><tr><th>Phase</th><th>Duration</th><th>Milestone</th></tr></thead>
         <tbody>
@@ -778,6 +1149,11 @@ const ARC = Math.PI * 100; // semicircle arc length ≈ 314
 let evPts = 0, evLabel = 'Login', evType = 'login';
 let failed = 0, concurrent = 1, ipRep = 'clean';
 let logArr = [], dbTmr = null, rawTotal = 0;
+
+// ── Animation state ───────────────────────────────────────────
+let prevTier = 'low';
+let scoreCountId = null;
+let scoreFrom = 0;
 
 const NET_SCORES = { wifi:0, '5g':0, '4g':0, '3g':3, unknown:8, vpn:12, tor:28 };
 const IP_SCORES  = { clean:0, suspicious:15, sanctioned:25 };
@@ -818,6 +1194,34 @@ function onSlider(id, valId) {
   const el = g(valId);
   el.textContent = v + '%';
   el.style.color = sliderColor(v, 100);
+}
+
+// ── Score counter animation ───────────────────────────────────
+function animCount(to, color) {
+  if (scoreCountId) cancelAnimationFrame(scoreCountId);
+  const from = scoreFrom;
+  const el = g('gscore');
+  const dur = Math.min(520, 160 + Math.abs(to - from) * 5);
+  const t0 = performance.now();
+  function tick(now) {
+    const p = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - p, 3); // ease-out cubic
+    el.textContent = Math.round(from + (to - from) * e);
+    el.style.fill = color;
+    if (p < 1) { scoreCountId = requestAnimationFrame(tick); }
+    else { el.textContent = to; scoreFrom = to; }
+  }
+  scoreCountId = requestAnimationFrame(tick);
+  scoreFrom = to;
+}
+
+// ── Lightened hex for gradient bar fills ─────────────────────
+function lightenHex(hex, amt) {
+  const n = parseInt(hex.replace('#',''), 16);
+  const r = Math.min(255, (n>>16) + amt);
+  const gg = Math.min(255, ((n>>8)&0xFF) + amt);
+  const b = Math.min(255, (n&0xFF) + amt);
+  return '#' + [r,gg,b].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
 // ── Calculation ──────────────────────────────────────────────
@@ -917,16 +1321,30 @@ function upd() {
   const fill = (s / 100) * ARC;
   const capped = rawTotal > 100;
 
-  // Gauge
+  // Gauge arc + animated score counter
   g('gf').setAttribute('stroke-dasharray', fill + ' ' + (ARC + 10));
   g('gf').style.stroke = l.col;
-  g('gscore').textContent = s;
-  g('gscore').style.fill = l.col;
+  animCount(s, l.col);
   g('rbadge').textContent = lk.charAt(0).toUpperCase() + lk.slice(1) + ' risk';
   g('rbadge').style.background = l.col;
   g('rlat').textContent = '⏱ ' + lat + ' ms';
   const capEl = g('rcap');
   capped ? capEl.style.display = 'inline-block' : capEl.style.display = 'none';
+
+  // Flash decision card and animate tier row on tier change
+  if (lk !== prevTier) {
+    const dc = g('dcard');
+    dc.classList.remove('tier-flash');
+    void dc.offsetWidth;
+    dc.classList.add('tier-flash');
+    const activeRow = document.querySelector(`[data-t="${lk}"]`);
+    if (activeRow) {
+      activeRow.classList.remove('active-anim');
+      void activeRow.offsetWidth;
+      activeRow.classList.add('active-anim');
+    }
+    prevTier = lk;
+  }
 
   // Decision card
   const dc = g('dcard');
@@ -953,10 +1371,14 @@ function upd() {
   });
 
   // Phone mockup
-  g('phone').style.borderColor = l.col;
+  const phone = g('phone');
+  phone.style.borderColor = l.col;
+  lk === 'critical' ? phone.classList.add('critical') : phone.classList.remove('critical');
   g('pact').textContent        = l.pATxt;
   g('pact').style.background   = l.pABg;
   g('psub').textContent        = l.pSub;
+  g('pscr').style.background   = lk === 'critical' ? 'rgba(252,235,235,.5)' :
+                                  lk === 'high'     ? 'rgba(250,236,231,.4)' : '';
 
   // SOC alert for critical
   const socEl = g('soc-alert');
@@ -986,24 +1408,26 @@ function upd() {
     g('ptx3').textContent = 'HDFC ···· 4821';
   }
 
-  // Breakdown bars
+  // Breakdown bars with staggered entrance + gradient fills
   const dimMax = [['Device',sc.devS,50],['Behaviour',sc.behS,25],['Context',sc.ctxS,28],['Event',sc.evS,35],['History',sc.histS,24]];
   if (sc.ssBonus) dimMax.push(['SIM swap',sc.ssBonus,15]);
-  g('bkdn').innerHTML = dimMax.map(([lbl,v,mx]) => {
+  g('bkdn').innerHTML = dimMax.map(([lbl,v,mx],i) => {
     const pct = Math.round(v/mx*100);
-    const col = v ? sliderColor(v, mx) : '#E0E0E0';
-    return `<div class="bkdn-bar">
-      <div class="bar-lbl"><span>${lbl}</span><span style="font-weight:600;color:${v?col:'#CCC'}">+${v} <span class="bar-max">/ ${mx}</span></span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+    const col = v ? sliderColor(v, mx) : '#CBD5E0';
+    const colL = v ? lightenHex(col, 52) : '#E8EDF8';
+    const fillStyle = v ? `linear-gradient(90deg,${col},${colL})` : '#E5EDF8';
+    return `<div class="bkdn-bar" style="animation-delay:${i*45}ms">
+      <div class="bar-lbl"><span>${lbl}</span><span style="font-weight:700;color:${v?col:'#C2CEDF'}">+${v} <span class="bar-max">/ ${mx}</span></span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${fillStyle}"></div></div>
     </div>`;
   }).join('');
 
-  // Risk factors
+  // Risk factors with staggered entrance
   const factors = getFactors(sc);
   if (factors.length) {
-    g('factors').innerHTML = factors.map(f =>
-      `<div class="factor" style="border-left-color:${sliderColor(f.v, 35)}">
-         <span class="factor-score" style="color:${sliderColor(f.v, 35)}">+${f.v}</span>
+    g('factors').innerHTML = factors.map((f,i) =>
+      `<div class="factor" style="border-left-color:${sliderColor(f.v,35)};animation-delay:${i*55}ms">
+         <span class="factor-score" style="color:${sliderColor(f.v,35)}">+${f.v}</span>
          <span>${f.t}</span>
        </div>`
     ).join('');
@@ -1015,20 +1439,20 @@ function upd() {
   const showTransfer = evType === 'transfer' || evType === 'beneficiary_add';
   g('transfer-extras').style.display = showTransfer ? 'block' : 'none';
 
-  // Decision log (debounced)
+  // Decision log (debounced) with slide-in animation on latest entry
   clearTimeout(dbTmr);
   dbTmr = setTimeout(() => {
     logArr.unshift({ t: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
                      ev: evLabel, s, col: l.col, act: l.act });
     if (logArr.length > 8) logArr.pop();
     g('dlog').innerHTML = logArr.map((e, i) =>
-      `<div class="log-entry" style="background:${i?'#F9FAFB':'rgba('+hr(e.col)+',.04)'};border-color:${i?'var(--border)':'rgba('+hr(e.col)+',.2)'};opacity:${Math.max(0.4,1-i*.1)}">
-         <span style="font-size:10px;color:#AAA;min-width:52px">${e.t}</span>
-         <span style="font-size:11px;color:#555;min-width:90px">${e.ev}</span>
-         <div style="flex:1;height:4px;background:#E8EDF5;border-radius:2px;overflow:hidden">
-           <div style="width:${e.s}%;height:100%;background:${e.col};border-radius:2px"></div></div>
+      `<div class="log-entry${i===0?' new':''}" style="background:${i?'#F8FAFB':'rgba('+hr(e.col)+',.04)'};border-color:${i?'var(--border)':'rgba('+hr(e.col)+',.22)'};opacity:${Math.max(0.42,1-i*.1)}">
+         <span style="font-size:10px;color:#98B5D5;min-width:54px;font-weight:500">${e.t}</span>
+         <span style="font-size:11px;color:#4B5563;min-width:90px;font-weight:500">${e.ev}</span>
+         <div style="flex:1;height:4px;background:#E5EDF8;border-radius:2px;overflow:hidden">
+           <div style="width:${e.s}%;height:100%;background:${e.col};border-radius:2px;transition:width .4s"></div></div>
          <strong style="font-size:12px;color:${e.col};min-width:24px;text-align:right">${e.s}</strong>
-         <span style="font-size:10px;color:#fff;background:${e.col};padding:2px 8px;border-radius:4px;font-weight:600;white-space:nowrap">${e.act}</span>
+         <span style="font-size:10px;color:#fff;background:${e.col};padding:2px 8px;border-radius:5px;font-weight:700;white-space:nowrap;letter-spacing:.01em">${e.act}</span>
        </div>`
     ).join('');
   }, 350);
@@ -1087,6 +1511,10 @@ const SCENES = [
 ];
 
 function scene(i) {
+  // Brief scan pulse on the sim grid
+  const grid = g('sim-grid');
+  if (grid) { grid.classList.add('scanning'); setTimeout(() => grid.classList.remove('scanning'), 420); }
+
   const s = SCENES[i];
   g('i-kd').checked = !!s.kd;
   g('i-hlth').value = s.hlth; onSlider('i-hlth','hlth-v');
@@ -1193,7 +1621,6 @@ function copyCurl() {
 
 // ── Backend health check ──────────────────────────────────────
 async function pingBackend() {
-  // If served by the backend itself, use same origin; otherwise try localhost
   const apiUrl = window.TRUSTPULSE_API_URL
     || (location.protocol === 'file:' ? 'http://localhost:8000' : location.origin);
   if (!apiUrl) { setApiStatus('amber', 'No backend URL configured'); return; }
