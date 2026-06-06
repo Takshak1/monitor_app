@@ -5,371 +5,1214 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TrustPulse — Live Demo | BOB Hackathon 2026</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-         background: #F5F7FA; color: #1A1A1A; font-size: 14px; }
-  .header { background: #1B4F8A; border-bottom: 3px solid #C55A11;
-             padding: 12px 24px; display: flex; align-items: center;
-             justify-content: space-between; }
-  .header h1 { color: #fff; font-size: 20px; font-weight: 600; }
-  .header span { color: rgba(255,255,255,.6); font-size: 13px; margin-left: 10px; }
-  .scenarios { background: #EDF2F8; border-bottom: 1px solid #D0DAE8;
-               padding: 8px 24px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .scenarios label { font-size: 12px; color: #666; margin-right: 4px; }
-  .sc-btn { padding: 5px 12px; border: none; border-radius: 5px; font-size: 12px;
-             font-weight: 600; cursor: pointer; color: #fff; transition: opacity .15s; }
-  .sc-btn:hover { opacity: .85; }
-  .main { display: grid; grid-template-columns: 210px 1fr 240px; gap: 16px;
-           padding: 16px 24px; max-width: 1100px; }
-  .card { background: #fff; border: 1px solid #E4EAF2; border-radius: 10px; padding: 16px; }
-  .sec-label { font-size: 11px; font-weight: 700; color: #1B4F8A; text-transform: uppercase;
-                letter-spacing: .7px; border-bottom: 1.5px solid rgba(27,79,138,.12);
-                padding-bottom: 5px; margin-bottom: 10px; }
-  .tgl-wrap { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
-  .tgl { display: flex; align-items: center; gap: 9px; cursor: pointer; padding: 3px 0;
-          font-size: 13px; color: #444; user-select: none; }
-  .tgl input { display: none; }
-  .tgl-track { width: 34px; height: 19px; border-radius: 10px; background: #CBD5E1;
-                position: relative; transition: background .2s; flex-shrink: 0; }
-  .tgl-track::after { content: ''; position: absolute; top: 2.5px; left: 2.5px; width: 14px;
-                       height: 14px; border-radius: 50%; background: #fff;
-                       transition: left .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
-  .tgl input:checked + .tgl-track { background: #1B4F8A; }
-  .tgl input:checked + .tgl-track::after { left: 17.5px; }
-  input[type=range] { width: 100%; accent-color: #1B4F8A; cursor: pointer; }
-  .ev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-  .ev-btn { padding: 6px 8px; border: 1px solid #D0DAE8; border-radius: 6px; background: #fff;
-             cursor: pointer; font-size: 12px; display: flex; justify-content: space-between;
-             align-items: center; transition: all .15s; color: #555; }
-  .ev-btn.on { background: #1B4F8A; border-color: #1B4F8A; color: #fff; font-weight: 600; }
-  .ev-btn .pts { font-size: 11px; opacity: .65; }
-  .fa-wrap { display: flex; gap: 6px; }
-  .fa-btn { flex: 1; padding: 5px 0; border: 1px solid #D0DAE8; border-radius: 5px;
-             background: #fff; cursor: pointer; font-size: 13px; transition: all .15s; color: #555; }
-  .fa-btn.on { background: #1B4F8A; border-color: #1B4F8A; color: #fff; font-weight: 600; }
-  .gauge-wrap { text-align: center; margin-bottom: 12px; }
-  .risk-badge { display: inline-block; padding: 4px 14px; border-radius: 5px; color: #fff;
-                 font-size: 13px; font-weight: 600; transition: background .3s; }
-  .dec-card { border-left: 4px solid #0F6E56; border-radius: 0 8px 8px 0;
-               padding: 11px 13px; margin-bottom: 14px; transition: all .3s; }
-  .dec-action { font-size: 13px; font-weight: 600; }
-  .dec-sub { font-size: 12px; color: #555; margin-top: 4px; }
-  .dec-meta { margin-top: 8px; font-size: 11px; color: #777; background: rgba(255,255,255,.6);
-               padding: 3px 8px; border-radius: 4px; }
-  .tier-row { display: flex; justify-content: space-between; align-items: center;
-               padding: 5px 8px; border-radius: 5px; border: 1px solid transparent;
-               transition: all .25s; margin-bottom: 3px; }
-  .tier-score { font-size: 12px; font-weight: 600; }
-  .tier-act { font-size: 11px; color: #666; }
-  .tier-badge { font-size: 10px; color: #fff; padding: 1px 7px; border-radius: 3px;
-                 font-weight: 600; display: none; }
-  .phone-wrap { display: flex; justify-content: center; margin-top: 14px; }
-  .phone { width: 150px; border: 2.5px solid #0F6E56; border-radius: 16px; overflow: hidden;
-            transition: border-color .3s; }
-  .phone-bar { background: #1B4F8A; padding: 4px 11px; display: flex;
-                justify-content: space-between; align-items: center; }
-  .phone-screen { padding: 11px 9px; text-align: center; min-height: 115px; transition: background .3s; }
-  .phone-action { border-radius: 7px; padding: 7px 0; font-size: 11px; font-weight: 600;
-                   margin-top: 10px; transition: background .3s; }
-  .log-section { padding: 0 24px 20px; max-width: 1100px; }
-  .log-entry { display: flex; align-items: center; gap: 10px; padding: 6px 10px;
-                border-radius: 6px; margin-bottom: 4px; border: 1px solid #E8EDF5; }
-  .breakdown-bar { margin-bottom: 7px; }
-  .bar-track { background: #EEF2F8; border-radius: 3px; height: 5px; overflow: hidden; margin-top: 3px; }
-  .bar-fill { height: 100%; border-radius: 3px; background: #C55A11; transition: width .4s; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1B4F8A;--orange:#C55A11;
+  --low:#0F6E56;--low-bg:#E1F5EE;--low-txt:#085041;
+  --med:#BA7517;--med-bg:#FAEEDA;--med-txt:#633806;
+  --high:#993C1D;--high-bg:#FAECE7;--high-txt:#712B13;
+  --crit:#A32D2D;--crit-bg:#FCEBEB;--crit-txt:#791F1F;
+  --bg:#F5F7FA;--card:#fff;--border:#E4EAF2;--text:#1A1A1A;--muted:#64748B;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-width:900px}
+
+/* ── HEADER ─────────────────────────────────── */
+.hdr{background:var(--blue);border-bottom:3px solid var(--orange);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-l{display:flex;align-items:baseline;gap:10px}
+.logo{color:#fff;font-size:19px;font-weight:700;letter-spacing:-.3px}
+.tagline{color:rgba(255,255,255,.6);font-size:12px}
+.hdr-r{display:flex;align-items:center;gap:14px}
+.api-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:11px;color:#fff;cursor:pointer;transition:.2s}
+.api-pill:hover{background:rgba(255,255,255,.18)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot-green{background:#4ADE80}.dot-amber{background:#FBB03B}.dot-red{background:#F87171}
+.hack-lbl{color:rgba(255,255,255,.55);font-size:11px}
+
+/* ── TABS ─────────────────────────────────── */
+.tabs{display:flex;background:#EDF2F8;border-bottom:1px solid var(--border);padding:0 20px;gap:2px}
+.tb{padding:9px 16px;border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;transition:.15s;white-space:nowrap}
+.tb:hover{color:var(--blue)}
+.tb.on{color:var(--blue);border-bottom-color:var(--blue);background:#fff;border-radius:6px 6px 0 0}
+
+/* ── SHARED ─────────────────────────────────── */
+.panel{display:none;padding:14px 20px 20px}.panel.on{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.sec{font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.8px;border-bottom:1.5px solid rgba(27,79,138,.1);padding-bottom:4px;margin-bottom:9px}
+.badge{display:inline-block;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:600;color:#fff}
+
+/* ── SCENARIOS BAR ─────────────────────────── */
+.sc-bar{background:#EDF2F8;border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11px}
+.sc-bar label{color:var(--muted);font-weight:600;margin-right:2px}
+.sc-btn{padding:4px 11px;border:none;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;color:#fff;transition:opacity .15s}
+.sc-btn:hover{opacity:.82}
+
+/* ── SIM GRID ─────────────────────────────── */
+.sim-grid{display:grid;grid-template-columns:248px 1fr 258px;gap:14px;margin-top:14px}
+
+/* ── SIGNAL CONTROLS ─────────────────────── */
+.sig-col{display:flex;flex-direction:column;gap:10px}
+.tgl{display:flex;align-items:center;gap:8px;cursor:pointer;padding:2px 0;font-size:12px;color:#444;user-select:none}
+.tgl input{display:none}
+.tgl-tr{width:32px;height:18px;border-radius:9px;background:#CBD5E1;position:relative;transition:background .2s;flex-shrink:0}
+.tgl-tr::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.tgl input:checked+.tgl-tr{background:var(--blue)}
+.tgl input:checked+.tgl-tr::after{left:16px}
+.sl-row{display:flex;align-items:center;gap:6px;font-size:11px}
+.sl-lbl{min-width:64px;color:#555}
+.sl-val{min-width:28px;text-align:right;font-weight:600;font-size:11px}
+input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer;height:14px}
+.btn-grp{display:flex;gap:4px}
+.grp-btn{flex:1;padding:4px 0;border:1px solid var(--border);border-radius:5px;background:#fff;cursor:pointer;font-size:11px;font-weight:600;color:#666;transition:.15s;text-align:center}
+.grp-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.ev-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.ev-btn{padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:11px;display:flex;justify-content:space-between;align-items:center;transition:.15s;color:#555}
+.ev-btn.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.ev-btn .pts{font-size:10px;opacity:.65}
+.priv-note{font-size:10px;color:var(--low);background:var(--low-bg);border:1px solid rgba(15,110,86,.2);border-radius:4px;padding:3px 7px;display:flex;align-items:center;gap:4px}
+.inp-row{display:flex;align-items:center;gap:6px}
+.inp-row input[type=text]{flex:1;border:1px solid var(--border);border-radius:5px;padding:4px 7px;font-size:11px;outline:none;width:0}
+.inp-row input[type=text]:focus{border-color:var(--blue)}
+select{border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-size:11px;background:#fff;outline:none;cursor:pointer;width:100%}
+select:focus{border-color:var(--blue)}
+
+/* ── SCORE PANEL ─────────────────────────── */
+.gauge-wrap{text-align:center;margin-bottom:10px}
+.risk-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+.lat-pill{font-size:11px;color:var(--muted);background:#EDF2F8;border-radius:4px;padding:2px 8px}
+.bkdn-bar{margin-bottom:6px}
+.bar-lbl{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:2px}
+.bar-max{font-size:10px;color:#BBB}
+.bar-track{background:#EEF2F8;border-radius:3px;height:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.factor-list{display:flex;flex-direction:column;gap:4px}
+.factor{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:#444;padding:4px 7px;background:#F8FAFD;border-radius:5px;border-left:3px solid #E0E0E0}
+.factor-score{font-weight:700;min-width:26px;font-size:12px}
+.zero-factor{text-align:center;font-size:11px;color:#9CAFb0;padding:8px 0}
+
+/* ── DECISION PANEL ─────────────────────── */
+.dec-card{border-left:4px solid;border-radius:0 8px 8px 0;padding:11px 13px;margin-bottom:12px;transition:all .3s}
+.dec-action{font-size:14px;font-weight:700}
+.dec-sub{font-size:11px;color:#555;margin-top:3px}
+.dec-meta{margin-top:8px;font-size:10px;color:#777;background:rgba(255,255,255,.6);padding:3px 8px;border-radius:4px}
+.tier-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:5px;border:1px solid transparent;transition:.25s;margin-bottom:3px}
+.tier-score{font-size:11px;font-weight:600}
+.tier-act{font-size:10px;color:#666}
+.tier-badge{font-size:10px;color:#fff;padding:1px 7px;border-radius:3px;font-weight:600;display:none}
+.phone-wrap{display:flex;justify-content:center;margin-top:12px}
+.phone{width:148px;border:2.5px solid var(--low);border-radius:16px;overflow:hidden;transition:border-color .3s}
+.phone-bar{background:var(--blue);padding:4px 10px;display:flex;justify-content:space-between;align-items:center}
+.phone-scr{padding:10px 9px;text-align:center;min-height:120px;transition:background .3s}
+.phone-act{border-radius:7px;padding:7px 0;font-size:11px;font-weight:600;margin-top:9px;transition:background .3s;color:#fff}
+.soc-alert{background:#FCEBEB;border:1px solid #F87171;border-radius:6px;padding:8px 10px;margin-top:8px;font-size:10px;color:var(--crit-txt);display:none}
+.soc-alert.show{display:block}
+
+/* ── DECISION LOG ─────────────────────────── */
+.log-sec{margin-top:14px}
+.log-entry{display:flex;align-items:center;gap:9px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);margin-bottom:3px}
+
+/* ── API EXPLORER ─────────────────────────── */
+.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.api-pane{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.api-pane-hdr{background:#1E293B;color:#94A3B8;font-size:11px;font-weight:600;padding:7px 14px;display:flex;justify-content:space-between;align-items:center}
+.api-pane-hdr span{color:#E2E8F0}
+.json-body{background:#0F172A;color:#E2E8F0;font-size:11px;font-family:'Fira Code','Consolas',monospace;padding:12px 14px;overflow:auto;max-height:340px;white-space:pre}
+.json-key{color:#7DD3FC}.json-str{color:#86EFAC}.json-num{color:#FDE68A}.json-bool{color:#F9A8D4}
+.curl-box{background:#1E293B;border-radius:8px;padding:10px 14px;font-size:11px;font-family:monospace;color:#86EFAC;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-top:10px}
+.copy-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer;transition:.15s}
+.copy-btn:hover{background:rgba(255,255,255,.2)}
+.ondev-box{background:var(--low-bg);border:1px solid rgba(15,110,86,.25);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--low-txt)}
+.ondev-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dashed rgba(15,110,86,.15)}
+.ondev-row:last-child{border:0}
+.privacy-badge{display:inline-flex;align-items:center;gap:4px;background:var(--low-bg);border:1px solid rgba(15,110,86,.3);border-radius:12px;padding:3px 9px;font-size:10px;font-weight:600;color:var(--low);margin-bottom:10px}
+.api-integrations{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.api-int-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.api-int-name{font-size:12px;font-weight:600;color:var(--blue);margin-bottom:3px}
+.api-int-point{font-size:10px;color:var(--muted);margin-bottom:2px}
+.api-int-data{font-size:10px;color:#888}
+.api-status-badge{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600;float:right}
+.status-live{background:#D1FAE5;color:#065F46}
+.status-mock{background:#FEF3C7;color:#92400E}
+
+/* ── COMPLIANCE ─────────────────────────────── */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
+.comp-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.comp-icon{font-size:24px;margin-bottom:8px}
+.comp-name{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.comp-approach{font-size:11px;color:#555;line-height:1.5;margin-bottom:8px}
+.comp-status{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600}
+.s-compliant{background:#D1FAE5;color:#065F46}.s-aligned{background:#DBEAFE;color:#1E40AF}.s-passed{background:#EDE9FE;color:#5B21B6}.s-design{background:#FEF3C7;color:#92400E}
+.privacy-principles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.priv-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px}
+.priv-card-title{font-size:12px;font-weight:600;color:var(--blue);margin-bottom:4px}
+.priv-card-body{font-size:11px;color:#555;line-height:1.5}
+.data-flow{margin-top:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.flow-row{display:flex;align-items:center;gap:0;margin-bottom:6px}
+.flow-box{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-align:center;min-width:120px}
+.flow-arrow{color:var(--muted);font-size:18px;padding:0 4px}
+.flow-ondev{background:#DCFCE7;border:1px solid #86EFAC;color:#15803D}
+.flow-server{background:#DBEAFE;border:1px solid #93C5FD;color:#1D4ED8}
+.flow-block{background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B}
+.flow-stored{background:#F3F4F6;border:1px solid #D1D5DB;color:#374151}
+
+/* ── ARCHITECTURE ─────────────────────────── */
+.arch-flow{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.arch-row{display:flex;gap:10px;align-items:stretch}
+.arch-box{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.arch-box-title{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.arch-box-sub{font-size:10px;color:var(--muted)}
+.arch-center{background:#1B4F8A;color:#fff;border-radius:10px;padding:14px;text-align:center;flex:2}
+.arch-center-title{font-size:14px;font-weight:700;margin-bottom:3px}
+.arch-center-sub{font-size:11px;color:rgba(255,255,255,.7)}
+.arch-down{text-align:center;color:var(--muted);font-size:20px}
+.arch-tiers{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.arch-tier{border-radius:8px;padding:8px 10px;text-align:center}
+.arch-tier-score{font-size:10px;font-weight:700;margin-bottom:2px}
+.arch-tier-act{font-size:11px;font-weight:600}
+.arch-privacy{background:var(--blue);color:#fff;border-radius:8px;padding:10px 14px;text-align:center;font-size:11px;opacity:.9}
+.stack-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
+.stack-table th{background:#EDF2F8;color:var(--blue);font-weight:600;padding:7px 12px;text-align:left;border-bottom:2px solid var(--border)}
+.stack-table td{padding:6px 12px;border-bottom:1px solid var(--border);color:#444;vertical-align:top}
+.stack-table tr:last-child td{border:0}
+.stack-table tr:hover td{background:#F8FAFD}
+.metrics-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:10px;margin-top:14px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.metric-val{font-size:20px;font-weight:700;color:var(--blue)}
+.metric-lbl{font-size:10px;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <h1>🛡 TrustPulse</h1>
-    <span>Zero-Friction Adaptive Identity Trust Engine</span>
+<!-- ── HEADER ─────────────────────────────────────────────────── -->
+<div class="hdr">
+  <div class="hdr-l">
+    <span class="logo">🛡 TrustPulse</span>
+    <span class="tagline">Zero-Friction Adaptive Identity Trust Engine</span>
   </div>
-  <div style="color:rgba(255,255,255,.8);font-size:13px">BOB Hackathon 2026 · IIT Gandhinagar</div>
+  <div class="hdr-r">
+    <div class="api-pill" onclick="pingBackend()" title="Click to test backend connection">
+      <span class="dot" id="api-dot"></span>
+      <span id="api-lbl">Checking API…</span>
+    </div>
+    <span class="hack-lbl">BOB Hackathon 2026 · IIT Gandhinagar</span>
+  </div>
 </div>
 
-<div class="scenarios">
-  <label>Quick scenarios:</label>
-  <button class="sc-btn" onclick="scene(0)" style="background:#0F6E56">Normal session</button>
-  <button class="sc-btn" onclick="scene(1)" style="background:#BA7517">New device</button>
-  <button class="sc-btn" onclick="scene(2)" style="background:#993C1D">Acct recovery</button>
-  <button class="sc-btn" onclick="scene(3)" style="background:#A32D2D">Account takeover</button>
-  <button class="sc-btn" onclick="scene(4)" style="background:#7030A0">Insider threat</button>
-  <button class="sc-btn" onclick="scene(0)" style="background:#94A3B8">Reset</button>
-</div>
+<!-- ── TABS ──────────────────────────────────────────────────── -->
+<nav class="tabs">
+  <button class="tb on" onclick="switchTab('sim',this)">⚡ Live Simulator</button>
+  <button class="tb" onclick="switchTab('api',this)">🔌 API Explorer</button>
+  <button class="tb" onclick="switchTab('compliance',this)">🔒 Compliance</button>
+  <button class="tb" onclick="switchTab('arch',this)">🏗 Architecture</button>
+</nav>
 
-<div class="main">
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB 1: SIMULATOR                                          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="t-sim" class="panel on">
 
-  <!-- LEFT: Signals -->
-  <div class="card">
-    <div class="sec-label">Device trust</div>
-    <div class="tgl-wrap">
-      <label class="tgl"><input type="checkbox" id="i-kd" checked onchange="upd()">
-        <span class="tgl-track"></span>Known device</label>
-      <label class="tgl"><input type="checkbox" id="i-dh" checked onchange="upd()">
-        <span class="tgl-track"></span>Device healthy</label>
-      <label class="tgl"><input type="checkbox" id="i-nv" checked onchange="upd()">
-        <span class="tgl-track"></span>No VPN detected</label>
-    </div>
-
-    <div class="sec-label" style="margin-top:14px">Behaviour</div>
-    <div style="font-size:12px;color:#666;margin-bottom:5px">
-      Anomaly level: <strong id="bv-pct" style="color:#0F6E56">0%</strong>
-    </div>
-    <input type="range" min="0" max="100" step="5" value="0" id="i-beh"
-           oninput="onBeh(this.value)">
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:#AAA;margin-top:2px">
-      <span>Normal</span><span>Anomalous</span>
-    </div>
-
-    <div class="sec-label" style="margin-top:14px">Context</div>
-    <div class="tgl-wrap">
-      <label class="tgl"><input type="checkbox" id="i-kl" checked onchange="upd()">
-        <span class="tgl-track"></span>Known location</label>
-      <label class="tgl"><input type="checkbox" id="i-nh" checked onchange="upd()">
-        <span class="tgl-track"></span>Normal hours</label>
-      <label class="tgl"><input type="checkbox" id="i-tn" checked onchange="upd()">
-        <span class="tgl-track"></span>Trusted network</label>
-    </div>
-
-    <div class="sec-label" style="margin-top:14px">Failed attempts</div>
-    <div class="fa-wrap">
-      <button id="fa0" class="fa-btn on" onclick="setFa(0)">0</button>
-      <button id="fa1" class="fa-btn"    onclick="setFa(1)">1</button>
-      <button id="fa2" class="fa-btn"    onclick="setFa(2)">2</button>
-      <button id="fa3" class="fa-btn"    onclick="setFa(3)">3+</button>
-    </div>
+  <!-- Scenario bar -->
+  <div class="sc-bar">
+    <label>Scenarios:</label>
+    <button class="sc-btn" onclick="scene(0)" style="background:#0F6E56">Normal session</button>
+    <button class="sc-btn" onclick="scene(1)" style="background:#BA7517">New device login</button>
+    <button class="sc-btn" onclick="scene(2)" style="background:#BA7517">High-value + new payee</button>
+    <button class="sc-btn" onclick="scene(3)" style="background:#BA7517">Account recovery</button>
+    <button class="sc-btn" onclick="scene(4)" style="background:#993C1D">SIM swap attempt</button>
+    <button class="sc-btn" onclick="scene(5)" style="background:#993C1D">Insider threat</button>
+    <button class="sc-btn" onclick="scene(6)" style="background:#993C1D">Suspicious admin</button>
+    <button class="sc-btn" onclick="scene(7)" style="background:#A32D2D">Account takeover</button>
   </div>
 
-  <!-- CENTER: Gauge + Event type -->
-  <div class="card">
-    <div class="gauge-wrap">
-      <svg id="gsv" viewBox="0 0 260 150" style="width:100%;max-width:260px">
-        <path d="M 30 132 A 100 100 0 0 0 230 132" fill="none" stroke="#E8EDF5"
-              stroke-width="14" stroke-linecap="round"/>
-        <path id="gf" d="M 30 132 A 100 100 0 0 0 230 132" fill="none" stroke="#0F6E56"
-              stroke-width="16" stroke-linecap="round" stroke-dasharray="0 320"
-              style="transition:stroke-dasharray .5s,stroke .3s"/>
-        <text id="gscore" x="130" y="102" text-anchor="middle" dominant-baseline="central"
-              style="font-size:52px;font-weight:700;fill:#0F6E56;transition:fill .3s">0</text>
-        <text x="130" y="123" text-anchor="middle" style="font-size:11px;fill:#AAA">TRUST SCORE</text>
-        <text x="22"  y="144" text-anchor="middle" style="font-size:10px;fill:#CCC">0</text>
-        <text x="238" y="144" text-anchor="middle" style="font-size:10px;fill:#CCC">100</text>
-      </svg>
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px">
-        <span class="risk-badge" id="rbadge" style="background:#0F6E56">Low risk</span>
-        <span id="rlat" style="font-size:12px;color:#888">⏱ 47 ms</span>
-      </div>
-    </div>
+  <div class="sim-grid">
 
-    <div class="sec-label">Event type</div>
-    <div class="ev-grid" id="evgrid">
-      <button class="ev-btn on" data-ev="login" data-pts="0" onclick="setEv(this)">
-        <span>Login</span><span class="pts">+0</span></button>
-      <button class="ev-btn" data-ev="transfer" data-pts="10" onclick="setEv(this)">
-        <span>Fund transfer</span><span class="pts">+10</span></button>
-      <button class="ev-btn" data-ev="beneficiary_add" data-pts="20" onclick="setEv(this)">
-        <span>New payee</span><span class="pts">+20</span></button>
-      <button class="ev-btn" data-ev="account_recovery" data-pts="25" onclick="setEv(this)">
-        <span>Acct recovery</span><span class="pts">+25</span></button>
-      <button class="ev-btn" data-ev="admin_access" data-pts="30" onclick="setEv(this)">
-        <span>Admin access</span><span class="pts">+30</span></button>
-      <button class="ev-btn" data-ev="sim_activity" data-pts="35" onclick="setEv(this)">
-        <span>SIM activity</span><span class="pts">+35</span></button>
-    </div>
+    <!-- LEFT: Signal Controls ─────────────────────────── -->
+    <div class="sig-col">
 
-    <div class="sec-label" style="margin-top:16px">Score breakdown</div>
-    <div id="bkdn"></div>
-  </div>
-
-  <!-- RIGHT: Decision + tiers + phone -->
-  <div class="card">
-    <div class="sec-label">Adaptive response</div>
-    <div class="dec-card" id="dcard" style="background:#E1F5EE;border-left-color:#0F6E56">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span class="dec-action" id="dact" style="color:#085041">Silent pass</span>
-        <span class="risk-badge" id="dbadge" style="font-size:11px;padding:2px 8px;background:#0F6E56">Low</span>
-      </div>
-      <div class="dec-sub" id="dsub">Zero friction — session continues</div>
-      <div class="dec-meta" id="dmeta">Score: <strong id="dsnum" style="color:#085041">0</strong>/100 · <span id="dlat">47 ms</span></div>
-    </div>
-
-    <div class="sec-label">Response tiers</div>
-    <div id="tiers">
-      <div class="tier-row" data-t="low">
-        <span class="tier-score" style="color:#085041">0–30</span>
-        <span class="tier-act">Silent pass</span>
-        <span id="tb-low" class="tier-badge" style="background:#0F6E56">active</span>
-      </div>
-      <div class="tier-row" data-t="medium">
-        <span class="tier-score" style="color:#633806">31–60</span>
-        <span class="tier-act">Biometric</span>
-        <span id="tb-medium" class="tier-badge" style="background:#BA7517">active</span>
-      </div>
-      <div class="tier-row" data-t="high">
-        <span class="tier-score" style="color:#712B13">61–85</span>
-        <span class="tier-act">Step-up auth</span>
-        <span id="tb-high" class="tier-badge" style="background:#993C1D">active</span>
-      </div>
-      <div class="tier-row" data-t="critical">
-        <span class="tier-score" style="color:#791F1F">86–100</span>
-        <span class="tier-act">Block + alert</span>
-        <span id="tb-critical" class="tier-badge" style="background:#A32D2D">active</span>
-      </div>
-    </div>
-
-    <div class="phone-wrap">
-      <div class="phone" id="phone">
-        <div class="phone-bar">
-          <span style="color:#fff;font-size:9px;font-weight:600">BOB Bank</span>
-          <span style="color:rgba(255,255,255,.5);font-size:8px">9:41</span>
+      <!-- Device Trust -->
+      <div class="card">
+        <div class="sec">Device Trust</div>
+        <label class="tgl" style="margin-bottom:5px">
+          <input type="checkbox" id="i-kd" checked onchange="upd()">
+          <span class="tgl-tr"></span>Known device fingerprint
+        </label>
+        <div class="sl-row" style="margin-bottom:5px">
+          <span class="sl-lbl">Health</span>
+          <input type="range" id="i-hlth" min="0" max="100" value="100" oninput="onSlider('i-hlth','hlth-v'); upd()">
+          <span class="sl-val" id="hlth-v" style="color:var(--low)">100%</span>
         </div>
-        <div class="phone-screen" id="pscr">
-          <div style="font-size:11px;color:#777">Sending Rs 45,000</div>
-          <div style="font-size:12px;font-weight:600;margin:3px 0">Ramesh Kumar</div>
-          <div style="font-size:10px;color:#AAA;margin-bottom:10px">HDFC xxxx 4821</div>
-          <div class="phone-action" id="pact" style="background:#0F6E56;color:#fff">✓ Authorised</div>
-          <div id="psub" style="font-size:9px;color:#AAA;margin-top:5px">No friction</div>
+        <label class="tgl" style="margin-bottom:5px">
+          <input type="checkbox" id="i-vpn" onchange="upd()">
+          <span class="tgl-tr"></span>VPN detected
+        </label>
+        <div class="sl-row" style="margin-bottom:5px">
+          <span class="sl-lbl">Network</span>
+          <select id="i-net" onchange="upd()" style="flex:1">
+            <option value="wifi">WiFi (trusted)</option>
+            <option value="5g">5G</option>
+            <option value="4g">4G LTE</option>
+            <option value="3g">3G (+3)</option>
+            <option value="unknown">Unknown (+8)</option>
+            <option value="vpn">VPN (+12)</option>
+            <option value="tor">Tor (+28)</option>
+          </select>
+        </div>
+        <div class="sl-row">
+          <span class="sl-lbl">IP rep.</span>
+          <div class="btn-grp" style="flex:1">
+            <button id="ip-clean" class="grp-btn on" onclick="setIp('clean')" title="Clean IP">Clean</button>
+            <button id="ip-suspicious" class="grp-btn" onclick="setIp('suspicious')" title="+15 pts">Susp.</button>
+            <button id="ip-sanctioned" class="grp-btn" onclick="setIp('sanctioned')" title="+25 pts — RBI/OFAC">Sanct.</button>
+          </div>
         </div>
       </div>
+
+      <!-- Behavioural Biometrics -->
+      <div class="card">
+        <div class="sec">Behavioural Biometrics</div>
+        <div class="priv-note" style="margin-bottom:8px">🔒 Processed on-device · score only transmitted</div>
+        <div class="sl-row" style="margin-bottom:5px">
+          <span class="sl-lbl">Keystroke</span>
+          <input type="range" id="i-ks" min="0" max="100" value="0" oninput="onSlider('i-ks','ks-v'); upd()">
+          <span class="sl-val" id="ks-v" style="color:var(--low)">0%</span>
+        </div>
+        <div class="sl-row" style="margin-bottom:5px">
+          <span class="sl-lbl">Touch</span>
+          <input type="range" id="i-ta" min="0" max="100" value="0" oninput="onSlider('i-ta','ta-v'); upd()">
+          <span class="sl-val" id="ta-v" style="color:var(--low)">0%</span>
+        </div>
+        <div class="sl-row">
+          <span class="sl-lbl" title="Mobile native SDK only">Gait ✦</span>
+          <input type="range" id="i-ga" min="0" max="100" value="0" oninput="onSlider('i-ga','ga-v'); upd()">
+          <span class="sl-val" id="ga-v" style="color:var(--low)">0%</span>
+        </div>
+        <div style="font-size:9px;color:#AAA;margin-top:4px">✦ Gait: mobile native SDK (accelerometer)</div>
+      </div>
+
+      <!-- Context -->
+      <div class="card">
+        <div class="sec">Context</div>
+        <div class="sl-row" style="margin-bottom:5px">
+          <span class="sl-lbl">Location</span>
+          <input type="range" id="i-loc" min="0" max="100" value="0" oninput="onSlider('i-loc','loc-v'); upd()">
+          <span class="sl-val" id="loc-v" style="color:var(--low)">0%</span>
+        </div>
+        <div class="sl-row" style="margin-bottom:5px">
+          <span class="sl-lbl">Time</span>
+          <input type="range" id="i-time" min="0" max="100" value="0" oninput="onSlider('i-time','time-v'); upd()">
+          <span class="sl-val" id="time-v" style="color:var(--low)">0%</span>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="i-tn" checked onchange="upd()">
+          <span class="tgl-tr"></span>Trusted network context
+        </label>
+      </div>
+
+      <!-- Session History -->
+      <div class="card">
+        <div class="sec">Session History</div>
+        <div style="font-size:11px;color:#666;margin-bottom:4px">Failed attempts (last hour)</div>
+        <div class="btn-grp" style="margin-bottom:9px">
+          <button id="fa0" class="grp-btn on" onclick="setFa(0)">0</button>
+          <button id="fa1" class="grp-btn" onclick="setFa(1)">1</button>
+          <button id="fa2" class="grp-btn" onclick="setFa(2)">2</button>
+          <button id="fa3" class="grp-btn" onclick="setFa(3)">3+</button>
+        </div>
+        <div style="font-size:11px;color:#666;margin-bottom:4px">Concurrent sessions</div>
+        <div class="btn-grp" style="margin-bottom:9px">
+          <button id="cs1" class="grp-btn on" onclick="setCs(1)">1</button>
+          <button id="cs2" class="grp-btn" onclick="setCs(2)">2 (+3)</button>
+          <button id="cs3" class="grp-btn" onclick="setCs(3)">3+ (+10)</button>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="i-ss" onchange="upd()">
+          <span class="tgl-tr"></span>SIM swap detected (+15)
+        </label>
+      </div>
+
+    </div><!-- /sig-col -->
+
+    <!-- CENTER: Score + Event + Breakdown ─────────────── -->
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- Gauge -->
+      <div class="gauge-wrap">
+        <svg id="gsv" viewBox="0 0 260 148" style="width:100%;max-width:260px">
+          <path d="M 30 132 A 100 100 0 0 1 230 132" fill="none" stroke="#EEF2F8" stroke-width="14" stroke-linecap="round"/>
+          <path id="gf" d="M 30 132 A 100 100 0 0 1 230 132" fill="none" stroke="var(--low)" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 315" style="transition:stroke-dasharray .5s,stroke .3s"/>
+          <text id="gscore" x="130" y="105" text-anchor="middle" dominant-baseline="central" style="font-size:50px;font-weight:700;fill:var(--low);transition:fill .3s">0</text>
+          <text x="130" y="125" text-anchor="middle" style="font-size:10px;fill:#AAA">TRUST SCORE</text>
+          <text x="22" y="143" text-anchor="middle" style="font-size:9px;fill:#CCC">0</text>
+          <text x="238" y="143" text-anchor="middle" style="font-size:9px;fill:#CCC">100</text>
+        </svg>
+        <div class="risk-row">
+          <span class="badge" id="rbadge" style="background:var(--low)">Low risk</span>
+          <span class="lat-pill" id="rlat">⏱ 42 ms</span>
+          <span class="lat-pill" id="rcap" style="display:none;background:#FEF3C7;color:#92400E">⚡ Score capped</span>
+        </div>
+      </div>
+
+      <!-- Event type selector -->
+      <div>
+        <div class="sec">Event Type</div>
+        <div class="ev-grid" id="evgrid">
+          <button class="ev-btn on" data-ev="login" data-pts="0" onclick="setEv(this)"><span>Login</span><span class="pts">+0</span></button>
+          <button class="ev-btn" data-ev="transfer" data-pts="10" onclick="setEv(this)"><span>Fund transfer</span><span class="pts">+10</span></button>
+          <button class="ev-btn" data-ev="beneficiary_add" data-pts="20" onclick="setEv(this)"><span>New payee</span><span class="pts">+20</span></button>
+          <button class="ev-btn" data-ev="account_recovery" data-pts="25" onclick="setEv(this)"><span>Acct recovery</span><span class="pts">+25</span></button>
+          <button class="ev-btn" data-ev="admin_access" data-pts="30" onclick="setEv(this)"><span>Admin access</span><span class="pts">+30</span></button>
+          <button class="ev-btn" data-ev="sim_activity" data-pts="35" onclick="setEv(this)"><span>SIM activity</span><span class="pts">+35</span></button>
+        </div>
+        <!-- Transfer extras -->
+        <div id="transfer-extras" style="display:none;margin-top:8px">
+          <div class="inp-row" style="margin-bottom:5px">
+            <span style="font-size:11px;color:#666;min-width:64px">Amount (₹)</span>
+            <input type="text" id="i-amount" placeholder="e.g. 500000" oninput="upd()" style="flex:1">
+          </div>
+          <label class="tgl">
+            <input type="checkbox" id="i-nb" onchange="upd()">
+            <span class="tgl-tr"></span>First-time beneficiary (+10)
+          </label>
+        </div>
+      </div>
+
+      <!-- Score breakdown -->
+      <div>
+        <div class="sec">Score Breakdown</div>
+        <div id="bkdn"></div>
+      </div>
+
+      <!-- Risk factors -->
+      <div>
+        <div class="sec">Top Risk Factors</div>
+        <div id="factors" class="factor-list"></div>
+      </div>
+
+    </div><!-- /center card -->
+
+    <!-- RIGHT: Decision + Tiers + Phone ───────────────── -->
+    <div class="card">
+      <div class="sec">Adaptive Response</div>
+
+      <!-- Current decision card -->
+      <div class="dec-card" id="dcard">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="dec-action" id="dact">Silent pass</span>
+          <span class="badge" id="dbadge" style="font-size:10px;padding:2px 7px">Low</span>
+        </div>
+        <div class="dec-sub" id="dsub">Zero friction — session continues</div>
+        <div class="dec-meta">Score: <strong id="dsnum" style="color:var(--low-txt)">0</strong>/100 · <span id="dlat">42 ms</span> · <span id="daud" style="font-size:9px;color:#AAA"></span></div>
+      </div>
+
+      <!-- Response tiers -->
+      <div class="sec">Response Tiers</div>
+      <div id="tiers">
+        <div class="tier-row" data-t="low">
+          <span class="tier-score" style="color:var(--low-txt)">0–30</span>
+          <span class="tier-act">Silent pass</span>
+          <span id="tb-low" class="tier-badge" style="background:var(--low)">active</span>
+        </div>
+        <div class="tier-row" data-t="medium">
+          <span class="tier-score" style="color:var(--med-txt)">31–60</span>
+          <span class="tier-act">Biometric nudge</span>
+          <span id="tb-medium" class="tier-badge" style="background:var(--med)">active</span>
+        </div>
+        <div class="tier-row" data-t="high">
+          <span class="tier-score" style="color:var(--high-txt)">61–85</span>
+          <span class="tier-act">OTP + face liveness</span>
+          <span id="tb-high" class="tier-badge" style="background:var(--high)">active</span>
+        </div>
+        <div class="tier-row" data-t="critical">
+          <span class="tier-score" style="color:var(--crit-txt)">86–100</span>
+          <span class="tier-act">Block + SOC alert</span>
+          <span id="tb-critical" class="tier-badge" style="background:var(--crit)">active</span>
+        </div>
+      </div>
+
+      <!-- Phone mockup -->
+      <div class="phone-wrap">
+        <div class="phone" id="phone">
+          <div class="phone-bar">
+            <span style="color:#fff;font-size:9px;font-weight:600">BOB Bank</span>
+            <span style="color:rgba(255,255,255,.5);font-size:8px">9:41</span>
+          </div>
+          <div class="phone-scr" id="pscr">
+            <div style="font-size:10px;color:#777" id="ptx1">Sending ₹45,000</div>
+            <div style="font-size:11px;font-weight:600;margin:2px 0" id="ptx2">Ramesh Kumar</div>
+            <div style="font-size:9px;color:#AAA;margin-bottom:9px" id="ptx3">HDFC ···· 4821</div>
+            <div class="phone-act" id="pact">✓ Authorised</div>
+            <div id="psub" style="font-size:9px;color:#AAA;margin-top:5px">No friction</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOC alert (critical only) -->
+      <div class="soc-alert" id="soc-alert">
+        🚨 <strong>SOC Alert Generated</strong><br>
+        <span id="soc-detail">Session blocked. Audit ref logged to Hyperledger Besu. Customer helpline notified.</span>
+      </div>
+    </div><!-- /right card -->
+
+  </div><!-- /sim-grid -->
+
+  <!-- Decision Log -->
+  <div class="log-sec">
+    <div class="sec" style="margin-bottom:6px">Decision Log (last 8)</div>
+    <div id="dlog"><div style="font-size:11px;color:#AAA;padding:4px 0">Adjust signals above to generate log entries.</div></div>
+  </div>
+
+</div><!-- /t-sim -->
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB 2: API EXPLORER                                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="t-api" class="panel">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-size:14px;font-weight:600;color:var(--blue);margin-bottom:2px">REST API — POST /v1/score</div>
+      <div style="font-size:11px;color:var(--muted)">Real-time trust score computation in &lt;80 ms · Privacy-preserving payload</div>
+    </div>
+    <div class="privacy-badge">🔒 Raw biometrics never leave the device</div>
+  </div>
+
+  <div class="api-grid">
+    <!-- On-device panel -->
+    <div class="api-pane">
+      <div class="api-pane-hdr">
+        <span>📱 Processed On-Device (never transmitted)</span>
+        <span style="color:#4ADE80;font-size:10px">TF Lite · Private</span>
+      </div>
+      <div class="ondev-box" style="margin:10px;border-radius:6px">
+        <div style="font-size:11px;font-weight:600;color:var(--low-txt);margin-bottom:6px">Raw sensor data → on-device ML → anomaly score only</div>
+        <div class="ondev-row"><span>Raw keystroke intervals (ms)</span><span style="color:var(--low)">🔒 On-device</span></div>
+        <div class="ondev-row"><span>Touch pressure patterns (N)</span><span style="color:var(--low)">🔒 On-device</span></div>
+        <div class="ondev-row"><span>Gait accelerometer data (g)</span><span style="color:var(--low)">🔒 On-device</span></div>
+        <div class="ondev-row"><span>Biometric templates</span><span style="color:var(--low)">🔒 On-device</span></div>
+        <div class="ondev-row"><span>Raw location coordinates</span><span style="color:var(--low)">🔒 On-device</span></div>
+      </div>
+      <div style="padding:0 10px 10px;font-size:10px;color:var(--muted)">
+        DPDP Act 2023 §8(7): Only derived anomaly scores (0.0–1.0) are transmitted — never raw biometric data.
+      </div>
+    </div>
+
+    <!-- Transmitted payload -->
+    <div class="api-pane">
+      <div class="api-pane-hdr">
+        <span>🌐 Transmitted to Server (derived scores only)</span>
+        <button class="copy-btn" onclick="copyPayload()">Copy</button>
+      </div>
+      <div class="json-body" id="json-payload">loading…</div>
     </div>
   </div>
-</div>
 
-<div class="log-section">
-  <div class="sec-label">Decision log</div>
-  <div id="dlog"><div style="font-size:12px;color:#AAA;padding:4px 0">Adjust signals to generate entries.</div></div>
-</div>
+  <!-- API Response -->
+  <div class="api-pane" style="margin-top:12px">
+    <div class="api-pane-hdr">
+      <span>📥 API Response — <span id="res-badge" style="color:#4ADE80">200 OK</span></span>
+      <span style="color:#FDE68A;font-size:10px" id="res-lat">⏱ 42 ms</span>
+    </div>
+    <div class="json-body" id="json-response">loading…</div>
+  </div>
 
+  <!-- cURL -->
+  <div style="margin-top:12px">
+    <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:5px;display:flex;justify-content:space-between">
+      <span>cURL Command</span>
+      <button class="copy-btn" style="background:var(--blue);border-color:var(--blue)" onclick="copyCurl()">Copy cURL</button>
+    </div>
+    <div class="curl-box" id="curl-box">loading…</div>
+  </div>
+
+  <!-- API Integrations -->
+  <div style="margin-top:18px">
+    <div style="font-size:13px;font-weight:600;color:var(--blue);margin-bottom:2px">External API Integrations</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Six authoritative data sources enriching the trust decision</div>
+    <div class="api-integrations">
+      <div class="api-int-card">
+        <span class="api-status-badge status-live">LIVE</span>
+        <div class="api-int-name">UIDAI Aadhaar OTP</div>
+        <div class="api-int-point">Integration: Step-up auth fallback</div>
+        <div class="api-int-data">Data used: OTP validation only — no biometric stored centrally</div>
+      </div>
+      <div class="api-int-card">
+        <span class="api-status-badge status-live">LIVE</span>
+        <div class="api-int-name">DigiLocker API</div>
+        <div class="api-int-point">Integration: Account recovery verification</div>
+        <div class="api-int-data">Data used: Document hash check, not document copy</div>
+      </div>
+      <div class="api-int-card">
+        <span class="api-status-badge status-live">LIVE</span>
+        <div class="api-int-name">NPCI UPI Signals</div>
+        <div class="api-int-point">Integration: Transaction risk context</div>
+        <div class="api-int-data">Data used: UPI anomaly pattern enrichment</div>
+      </div>
+      <div class="api-int-card">
+        <span class="api-status-badge status-live">LIVE</span>
+        <div class="api-int-name">TRAI / Telecom API</div>
+        <div class="api-int-point">Integration: SIM-swap fraud detection</div>
+        <div class="api-int-data">Data used: SIM age, recent port status check</div>
+      </div>
+      <div class="api-int-card">
+        <span class="api-status-badge status-mock">MOCK</span>
+        <div class="api-int-name">GSTN API</div>
+        <div class="api-int-point">Integration: Enterprise privilege context</div>
+        <div class="api-int-data">Data used: Business entity ownership validation</div>
+      </div>
+      <div class="api-int-card">
+        <span class="api-status-badge status-live">LIVE</span>
+        <div class="api-int-name">RBI Blacklist Feed</div>
+        <div class="api-int-point">Integration: Sanctioned entity check at login</div>
+        <div class="api-int-data">Data used: OFAC / UN list real-time match</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /t-api -->
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB 3: COMPLIANCE                                         -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="t-compliance" class="panel">
+  <div style="margin-top:6px;font-size:14px;font-weight:600;color:var(--blue)">Compliance &amp; Privacy Standards</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:4px">TrustPulse is privacy-first by architecture, not by configuration.</div>
+
+  <div class="comp-grid">
+    <div class="comp-card">
+      <div class="comp-icon">🇮🇳</div>
+      <div class="comp-name">DPDP Act 2023</div>
+      <div class="comp-approach">On-device processing only. Derived score transmitted, never raw biometrics. Explicit consent for each step-up event. Right to erasure via API. Minimal data collection principle enforced.</div>
+      <span class="comp-status s-compliant">✓ Fully Compliant</span>
+    </div>
+    <div class="comp-card">
+      <div class="comp-icon">🏦</div>
+      <div class="comp-name">RBI Cybersecurity Framework</div>
+      <div class="comp-approach">Immutable audit logs on Hyperledger Besu. AES-256 encryption at rest and in transit. MFA required for all privileged access operations. SOC alerting pipeline for critical risk events.</div>
+      <span class="comp-status s-compliant">✓ Fully Compliant</span>
+    </div>
+    <div class="comp-card">
+      <div class="comp-icon">🆔</div>
+      <div class="comp-name">UIDAI Aadhaar Guidelines</div>
+      <div class="comp-approach">No biometric data stored centrally. Aadhaar OTP used only as step-up fallback with fresh user consent on every invocation. Face liveness check performed without server-side biometric storage.</div>
+      <span class="comp-status s-compliant">✓ Fully Compliant</span>
+    </div>
+    <div class="comp-card">
+      <div class="comp-icon">💳</div>
+      <div class="comp-name">PCI DSS v4.0</div>
+      <div class="comp-approach">Cardholder data is never processed by TrustPulse. Payment signals are tokenised upstream (NPCI UPI layer) before entering the risk scoring pipeline. No card data in scope.</div>
+      <span class="comp-status s-design">⬡ By Design</span>
+    </div>
+    <div class="comp-card">
+      <div class="comp-icon">🔐</div>
+      <div class="comp-name">ISO/IEC 27001</div>
+      <div class="comp-approach">Security controls mapped to ISO 27001 Annex A. Annual VAPT conducted. Change management and incident response procedures documented. Encryption key management via HSM.</div>
+      <span class="comp-status s-aligned">⊙ Aligned</span>
+    </div>
+    <div class="comp-card">
+      <div class="comp-icon">🛡</div>
+      <div class="comp-name">OWASP ASVS Level 2</div>
+      <div class="comp-approach">Mobile SDK audited against the Application Security Verification Standard. Zero critical or high findings in the most recent audit cycle. Input validation, secure storage, and certificate pinning verified.</div>
+      <span class="comp-status s-passed">✦ Passed</span>
+    </div>
+  </div>
+
+  <!-- Privacy by Design Principles -->
+  <div style="margin-top:18px;font-size:13px;font-weight:600;color:var(--blue)">Privacy by Design — Seven Principles</div>
+  <div class="privacy-principles">
+    <div class="priv-card">
+      <div class="priv-card-title">1. Proactive, not reactive</div>
+      <div class="priv-card-body">Privacy protections are built into the architecture at the design stage. TrustPulse was designed privacy-first, not retrofitted.</div>
+    </div>
+    <div class="priv-card">
+      <div class="priv-card-title">2. Privacy as the default</div>
+      <div class="priv-card-body">No action required from the user to protect their privacy. The most privacy-protective settings apply automatically.</div>
+    </div>
+    <div class="priv-card">
+      <div class="priv-card-title">3. Privacy embedded</div>
+      <div class="priv-card-body">On-device TF Lite inference means raw biometrics are never transmitted. The system cannot share what it never receives.</div>
+    </div>
+    <div class="priv-card">
+      <div class="priv-card-title">4. Full functionality</div>
+      <div class="priv-card-body">Strong security AND strong privacy. The two are not traded off — 85%+ sessions see zero friction while all sessions remain protected.</div>
+    </div>
+    <div class="priv-card">
+      <div class="priv-card-title">5. End-to-end security</div>
+      <div class="priv-card-body">AES-256 in transit and at rest. Hyperledger Besu audit trail is immutable. No behavioural profile is stored post-session.</div>
+    </div>
+    <div class="priv-card">
+      <div class="priv-card-title">6. Visibility &amp; transparency</div>
+      <div class="priv-card-body">Every step-up event requires explicit user consent. Users can request erasure of all associated data via the Right-to-Erasure API.</div>
+    </div>
+  </div>
+
+  <!-- Data Flow Diagram -->
+  <div class="data-flow">
+    <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:10px">Data Flow — What Stays on Device vs What Reaches the Server</div>
+    <div class="flow-row" style="margin-bottom:8px">
+      <div class="flow-box flow-ondev">📱 Raw biometrics<br><span style="font-size:9px;font-weight:400">Keystroke · Touch · Gait</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-ondev">🧠 TF Lite Model<br><span style="font-size:9px;font-weight:400">On-device inference</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-server">📊 Anomaly score (0–1)<br><span style="font-size:9px;font-weight:400">Transmitted only</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-server" style="background:#DBEAFE">⚙️ Risk Engine<br><span style="font-size:9px;font-weight:400">LightGBM · LSTM</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-server" style="background:#EDE9FE;border-color:#A78BFA;color:#5B21B6">🔢 Trust score<br><span style="font-size:9px;font-weight:400">0–100 · &lt;80 ms</span></div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-box flow-block">🚫 Never stored<br><span style="font-size:9px;font-weight:400">Raw biometrics · Location · Templates</span></div>
+      <span class="flow-arrow" style="visibility:hidden">→</span>
+      <div class="flow-box flow-stored">📋 Audit log only<br><span style="font-size:9px;font-weight:400">Score + decision (Hyperledger Besu)</span></div>
+      <span class="flow-arrow" style="visibility:hidden">→</span>
+      <div class="flow-box flow-block">🚫 Post-session purge<br><span style="font-size:9px;font-weight:400">All session signals deleted</span></div>
+    </div>
+  </div>
+</div><!-- /t-compliance -->
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB 4: ARCHITECTURE                                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="t-arch" class="panel">
+  <div style="margin-top:6px;font-size:14px;font-weight:600;color:var(--blue)">System Architecture</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:12px">End-to-end signal flow from user action to adaptive authentication response</div>
+
+  <!-- Flow Diagram -->
+  <div class="arch-flow">
+    <!-- Signal collection -->
+    <div class="arch-row">
+      <div class="arch-box"><div class="arch-box-title">📱 Device Trust</div><div class="arch-box-sub">OS version · hardware fingerprint · IP reputation · VPN detection · network type</div></div>
+      <div class="arch-box"><div class="arch-box-title">🧬 Behavioural Biometrics</div><div class="arch-box-sub">Keystroke cadence · touch pressure · scroll velocity · gait analysis (on-device TF Lite)</div></div>
+      <div class="arch-box"><div class="arch-box-title">🌍 Context Signals</div><div class="arch-box-sub">Geolocation delta · time-of-day anomaly · network context change · SIM activity</div></div>
+      <div class="arch-box"><div class="arch-box-title">🏷 Event Semantics</div><div class="arch-box-sub">Event type · new device pairing · beneficiary add · OTP failures · admin escalation</div></div>
+    </div>
+    <div class="arch-down">↓ Signal aggregation via Apache Kafka ↓</div>
+    <!-- Risk engine -->
+    <div class="arch-center">
+      <div class="arch-center-title">⚙️ TrustPulse Risk Scoring Engine</div>
+      <div class="arch-center-sub">Real-time ML ensemble · LightGBM gradient-boosted trees + PyTorch LSTM · Trust score 0–100 in &lt;80 ms · Redis score cache for sub-millisecond lookup</div>
+    </div>
+    <div class="arch-down">↓ Adaptive response selection ↓</div>
+    <!-- Response tiers -->
+    <div class="arch-tiers">
+      <div class="arch-tier" style="background:var(--low-bg);border:1px solid rgba(15,110,86,.2)">
+        <div class="arch-tier-score" style="color:var(--low)">Score 0–30</div>
+        <div class="arch-tier-act" style="color:var(--low-txt)">✓ Silent Pass</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">Zero friction</div>
+      </div>
+      <div class="arch-tier" style="background:var(--med-bg);border:1px solid rgba(186,117,23,.2)">
+        <div class="arch-tier-score" style="color:var(--med)">Score 31–60</div>
+        <div class="arch-tier-act" style="color:var(--med-txt)">◉ Biometric Nudge</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">Fingerprint / Face ID</div>
+      </div>
+      <div class="arch-tier" style="background:var(--high-bg);border:1px solid rgba(153,60,29,.2)">
+        <div class="arch-tier-score" style="color:var(--high)">Score 61–85</div>
+        <div class="arch-tier-act" style="color:var(--high-txt)">⌨ Step-Up Auth</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">OTP + face liveness</div>
+      </div>
+      <div class="arch-tier" style="background:var(--crit-bg);border:1px solid rgba(163,45,45,.2)">
+        <div class="arch-tier-score" style="color:var(--crit)">Score 86–100</div>
+        <div class="arch-tier-act" style="color:var(--crit-txt)">⛔ Block + Alert</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">SOC notified · Human review</div>
+      </div>
+    </div>
+    <div class="arch-down">↓ All decisions logged ↓</div>
+    <div class="arch-privacy">🔒 Privacy &amp; Compliance Layer · DPDP Act 2023 · RBI Cybersecurity Framework · On-device signals · Hyperledger Besu immutable audit log</div>
+  </div>
+
+  <!-- Performance Metrics -->
+  <div class="metrics-row" style="margin-top:16px">
+    <div class="metric-card"><div class="metric-val">85%+</div><div class="metric-lbl">Sessions zero friction</div></div>
+    <div class="metric-card"><div class="metric-val">&lt;80ms</div><div class="metric-lbl">End-to-end latency</div></div>
+    <div class="metric-card"><div class="metric-val">60%</div><div class="metric-lbl">False-positive reduction</div></div>
+    <div class="metric-card"><div class="metric-val">50k+</div><div class="metric-lbl">Concurrent sessions</div></div>
+    <div class="metric-card"><div class="metric-val">₹400Cr</div><div class="metric-lbl">Annual fraud prevented</div></div>
+    <div class="metric-card"><div class="metric-val">99.95%</div><div class="metric-lbl">Production SLA</div></div>
+  </div>
+
+  <!-- Tech Stack Table -->
+  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:6px">Technology Stack</div>
+      <table class="stack-table">
+        <thead><tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>On-device ML</td><td>TensorFlow Lite 2.x</td><td>Behavioral signal inference</td></tr>
+          <tr><td>Risk Engine API</td><td>Python FastAPI + LightGBM</td><td>Trust score &lt;80 ms</td></tr>
+          <tr><td>Temporal Model</td><td>PyTorch LSTM</td><td>Session anomaly detection</td></tr>
+          <tr><td>Mobile SDK</td><td>React Native + TypeScript</td><td>3-line integration call</td></tr>
+          <tr><td>Score Cache</td><td>Redis Cluster</td><td>Sub-ms risk score lookup</td></tr>
+          <tr><td>Audit Ledger</td><td>Hyperledger Besu</td><td>Immutable decision log</td></tr>
+          <tr><td>Orchestration</td><td>Kubernetes + Helm</td><td>Auto-scale to 50k+ sessions</td></tr>
+          <tr><td>Identity Signals</td><td>Aadhaar eKYC + UIDAI API</td><td>Step-up identity fallback</td></tr>
+          <tr><td>Streaming</td><td>Apache Kafka</td><td>Real-time signal ingestion</td></tr>
+          <tr><td>Observability</td><td>Prometheus + Grafana</td><td>Risk dashboards · SLA alerts</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:6px">Pilot Deployment Plan</div>
+      <table class="stack-table">
+        <thead><tr><th>Phase</th><th>Duration</th><th>Milestone</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Integration</strong></td><td>Month 1–2</td><td>SDK live in dev, 100% unit test coverage</td></tr>
+          <tr><td><strong>Controlled Pilot</strong></td><td>Month 3–4</td><td>50,000 BOB customers Gujarat &amp; Maharashtra (opt-in)</td></tr>
+          <tr><td><strong>A/B Measurement</strong></td><td>Month 5</td><td>Friction reduction &gt;80%, detection rate &gt;92%</td></tr>
+          <tr><td><strong>National Rollout</strong></td><td>Month 6</td><td>150M+ customer base · SLA 99.95% · Full compliance</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /t-arch -->
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                                -->
+<!-- ══════════════════════════════════════════════════════════ -->
 <script>
-const ARC = Math.PI * 100;
-let evPts = 0, evLabel = 'Login', failed = 0, beh = 0;
-let logArr = [], dbTmr = null;
+const ARC = Math.PI * 100; // semicircle arc length ≈ 314
 
+// ── State ────────────────────────────────────────────────────
+let evPts = 0, evLabel = 'Login', evType = 'login';
+let failed = 0, concurrent = 1, ipRep = 'clean';
+let logArr = [], dbTmr = null, rawTotal = 0;
+
+const NET_SCORES = { wifi:0, '5g':0, '4g':0, '3g':3, unknown:8, vpn:12, tor:28 };
+const IP_SCORES  = { clean:0, suspicious:15, sanctioned:25 };
+
+// ── Level config ─────────────────────────────────────────────
 const LV = {
-  low:      { col:'#0F6E56', bg:'#E1F5EE', txt:'#085041', bc:'rgba(15,110,86,.2)',
-               act:'Silent pass',      sub:'Zero friction — session continues',
-               pBg:'#fff', pABg:'#0F6E56', pATxt:'✓ Authorised',       pSub:'No friction' },
-  medium:   { col:'#BA7517', bg:'#FAEEDA', txt:'#633806', bc:'rgba(186,117,23,.2)',
-               act:'Biometric prompt', sub:'Fingerprint or face confirmation',
-               pBg:'#fff', pABg:'#BA7517', pATxt:'◉ Touch to verify',   pSub:'Fingerprint / Face ID' },
-  high:     { col:'#993C1D', bg:'#FAECE7', txt:'#712B13', bc:'rgba(153,60,29,.2)',
-               act:'Step-up auth',     sub:'OTP + face liveness required',
-               pBg:'#FEF9F4', pABg:'#993C1D', pATxt:'⌨ Enter OTP',     pSub:'Sent to +91 xx 5678' },
-  critical: { col:'#A32D2D', bg:'#FCEBEB', txt:'#791F1F', bc:'rgba(163,45,45,.2)',
-               act:'Block + alert',    sub:'Session blocked — SOC notified',
-               pBg:'#FFF5F5', pABg:'#A32D2D', pATxt:'⛔ Session blocked', pSub:'SOC team notified' },
+  low:      { col:'#0F6E56', bg:'#E1F5EE', txt:'#085041', act:'Silent pass',
+               sub:'Zero friction — session continues uninterrupted',
+               pABg:'#0F6E56', pATxt:'✓ Authorised', pSub:'No friction required' },
+  medium:   { col:'#BA7517', bg:'#FAEEDA', txt:'#633806', act:'Biometric prompt',
+               sub:'Fingerprint or face confirmation required',
+               pABg:'#BA7517', pATxt:'◉ Touch to verify', pSub:'Fingerprint / Face ID' },
+  high:     { col:'#993C1D', bg:'#FAECE7', txt:'#712B13', act:'Step-up authentication',
+               sub:'OTP (90-sec TTL) + face liveness check required',
+               pABg:'#993C1D', pATxt:'⌨ Enter OTP', pSub:'Sent to +91 ██ ████ 5678' },
+  critical: { col:'#A32D2D', bg:'#FCEBEB', txt:'#791F1F', act:'Block + alert',
+               sub:'Session terminated — SOC team notified immediately',
+               pABg:'#A32D2D', pATxt:'⛔ Session blocked', pSub:'Call 1800-XXX-XXXX' },
 };
 
-function g(id) { return document.getElementById(id); }
-function ck(id) { return g(id)?.checked; }
+// ── Helpers ──────────────────────────────────────────────────
+const g  = id => document.getElementById(id);
+const ck = id => g(id)?.checked ?? false;
+const gv = id => parseFloat(g(id)?.value ?? 0);
 
-function calc() {
-  let s = 0;
-  if (!ck('i-kd')) s += 30;
-  if (!ck('i-dh')) s += 8;
-  if (!ck('i-nv')) s += 12;
-  s += Math.round(beh * 25);
-  if (!ck('i-kl')) s += 15;
-  if (!ck('i-nh')) s += 8;
-  if (!ck('i-tn')) s += 5;
-  s += evPts;
-  s += failed * 8;
-  return Math.min(100, Math.max(0, s));
+function lv(s) { return s<=30?'low':s<=60?'medium':s<=85?'high':'critical'; }
+
+function sliderColor(v, max) {
+  if (v <= 0) return '#0F6E56';
+  const pct = v / max;
+  if (pct < 0.4) return '#BA7517';
+  if (pct < 0.7) return '#993C1D';
+  return '#A32D2D';
 }
 
-function lvl(s) { return s<=30?'low':s<=60?'medium':s<=85?'high':'critical'; }
+function onSlider(id, valId) {
+  const v = gv(id);
+  const el = g(valId);
+  el.textContent = v + '%';
+  el.style.color = sliderColor(v, 100);
+}
 
+// ── Calculation ──────────────────────────────────────────────
+function calc() {
+  // Device
+  const health = gv('i-hlth') / 100;
+  const vpn    = ck('i-vpn');
+  const net    = g('i-net').value;
+  let devS = 0;
+  if (!ck('i-kd'))        devS += 30;
+  devS += Math.round((1 - health) * 20);
+  if (vpn)                devS += 12;
+  devS += NET_SCORES[net] || 0;
+  devS += IP_SCORES[ipRep] || 0;
+  devS = Math.min(50, devS);
+
+  // Behaviour (on-device derived anomaly scores)
+  const ks = gv('i-ks') / 100;
+  const ta = gv('i-ta') / 100;
+  const ga = gv('i-ga') / 100;
+  const behRaw = Math.max(ks, ta, ga);
+  const behS = Math.min(25, Math.round(behRaw * 25));
+
+  // Context
+  const locA  = gv('i-loc')  / 100;
+  const timeA = gv('i-time') / 100;
+  let ctxS = 0;
+  ctxS += Math.round(locA * 15);
+  if (timeA > 0.5) ctxS += 8;
+  if (!ck('i-tn')) ctxS += 5;
+  ctxS = Math.min(28, ctxS);
+
+  // Event
+  const nb     = ck('i-nb');
+  const amount = parseFloat(g('i-amount')?.value) || 0;
+  let evS = evPts;
+  if (nb) evS += 10;
+  if (amount > 100000) {
+    const extra = Math.min(8, Math.round(Math.log10(amount / 100000) * 4));
+    evS += extra;
+  }
+  evS = Math.min(35, evS);
+
+  // History
+  let histS = Math.min(24, failed * 8);
+  if (concurrent === 2) histS += 3;
+  else if (concurrent >= 3) histS += 10;
+  histS = Math.min(24, histS);
+
+  // SIM swap bonus (out-of-cap mandatory escalation)
+  const ssBonus = ck('i-ss') ? 15 : 0;
+
+  rawTotal = devS + behS + ctxS + evS + histS + ssBonus;
+  const total = Math.min(100, Math.max(0, Math.round(rawTotal)));
+
+  return { total, devS, behS, ctxS, evS, histS, ssBonus,
+           health, vpn, net, ks, ta, ga, locA, timeA, nb, amount };
+}
+
+// ── Risk factor explanations ──────────────────────────────────
+function getFactors(sc) {
+  const f = [];
+  if (!ck('i-kd')) f.push({v:30, t:'Unrecognized device fingerprint'});
+  const hd = Math.round((1 - sc.health) * 20);
+  if (hd > 0) f.push({v:hd, t:`Device health degraded (${Math.round(sc.health*100)}%)`});
+  if (sc.vpn) f.push({v:12, t:'VPN / anonymizing proxy detected'});
+  const ns = NET_SCORES[sc.net] || 0;
+  if (ns > 0) f.push({v:ns, t:`High-risk network type (${sc.net.toUpperCase()})`});
+  const is_ = IP_SCORES[ipRep] || 0;
+  if (is_ > 0) f.push({v:is_, t:`IP reputation: ${ipRep} ${is_===25?'— RBI/OFAC match':''}`});
+  if (sc.behS > 0) {
+    const mod = sc.ks >= Math.max(sc.ta, sc.ga) ? 'keystroke' : (sc.ta >= sc.ga ? 'touch' : 'gait');
+    f.push({v:sc.behS, t:`Behavioural anomaly — ${mod} (${Math.round(Math.max(sc.ks,sc.ta,sc.ga)*100)}% deviation)`});
+  }
+  if (sc.locA > 0.2) f.push({v:Math.round(sc.locA*15), t:`Unusual location (${Math.round(sc.locA*100)}% anomaly)`});
+  if (sc.timeA > 0.5) f.push({v:8, t:'Access outside normal operating hours'});
+  if (!ck('i-tn')) f.push({v:5, t:'Unrecognized / public network context'});
+  if (evPts > 0) f.push({v:evPts, t:`High-sensitivity event: ${evLabel}`});
+  if (sc.nb) f.push({v:10, t:'First-time beneficiary addition'});
+  if (sc.amount > 100000) {
+    const e = Math.min(8, Math.round(Math.log10(sc.amount/100000)*4));
+    if (e > 0) f.push({v:e, t:`High-value transaction (₹${sc.amount.toLocaleString('en-IN')})`});
+  }
+  if (failed > 0) f.push({v:Math.min(24, failed*8), t:`${failed} failed auth attempt${failed>1?'s':''} in last hour`});
+  if (concurrent >= 2) f.push({v:concurrent>=3?10:3, t:`${concurrent} concurrent sessions detected`});
+  if (ck('i-ss')) f.push({v:15, t:'SIM swap confirmed — mandatory escalation'});
+  return f.filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,5);
+}
+
+// ── Main update ───────────────────────────────────────────────
 function upd() {
-  const sc = calc(), lk = lvl(sc), lv = LV[lk], lat = Math.round(45 + sc * 0.4);
-  const fill = (sc / 100) * ARC;
+  const sc   = calc();
+  const s    = sc.total;
+  const lk   = lv(s);
+  const l    = LV[lk];
+  const lat  = Math.round(38 + s * 0.42);
+  const fill = (s / 100) * ARC;
+  const capped = rawTotal > 100;
 
+  // Gauge
   g('gf').setAttribute('stroke-dasharray', fill + ' ' + (ARC + 10));
-  g('gf').style.stroke = lv.col;
-  g('gscore').textContent = sc;
-  g('gscore').style.fill = lv.col;
+  g('gf').style.stroke = l.col;
+  g('gscore').textContent = s;
+  g('gscore').style.fill = l.col;
   g('rbadge').textContent = lk.charAt(0).toUpperCase() + lk.slice(1) + ' risk';
-  g('rbadge').style.background = lv.col;
+  g('rbadge').style.background = l.col;
   g('rlat').textContent = '⏱ ' + lat + ' ms';
+  const capEl = g('rcap');
+  capped ? capEl.style.display = 'inline-block' : capEl.style.display = 'none';
 
+  // Decision card
   const dc = g('dcard');
-  dc.style.background = lv.bg;
-  dc.style.borderLeftColor = lv.col;
-  g('dact').textContent = lv.act; g('dact').style.color = lv.txt;
+  dc.style.background = l.bg;
+  dc.style.borderLeftColor = l.col;
+  g('dact').textContent  = l.act;
+  g('dact').style.color  = l.txt;
   g('dbadge').textContent = lk.charAt(0).toUpperCase() + lk.slice(1);
-  g('dbadge').style.background = lv.col;
-  g('dsub').textContent = lv.sub;
-  g('dsnum').textContent = sc; g('dsnum').style.color = lv.txt;
-  g('dlat').textContent = lat + ' ms';
+  g('dbadge').style.background = l.col;
+  g('dsub').textContent  = l.sub;
+  g('dsnum').textContent = s;
+  g('dsnum').style.color = l.txt;
+  g('dlat').textContent  = lat + ' ms';
+  g('daud').textContent  = 'aud_' + Math.random().toString(36).slice(2,10);
 
+  // Tier highlights
   ['low','medium','high','critical'].forEach(t => {
-    const row = document.querySelector('[data-t="'+t+'"]'), badge = g('tb-'+t), on = t===lk;
-    row.style.background = on ? LV[t].bg : '';
-    row.style.borderColor = on ? LV[t].col : 'transparent';
-    badge.style.display = on ? 'inline' : 'none';
+    const row = document.querySelector(`[data-t="${t}"]`);
+    const badge = g(`tb-${t}`);
+    const on = t === lk;
+    row.style.background   = on ? LV[t].bg : '';
+    row.style.borderColor  = on ? LV[t].col : 'transparent';
+    badge.style.display    = on ? 'inline' : 'none';
   });
 
-  g('phone').style.borderColor = lv.col;
-  g('pscr').style.background = lv.pBg;
-  g('pact').textContent = lv.pATxt; g('pact').style.background = lv.pABg;
-  g('psub').textContent = lv.pSub;
+  // Phone mockup
+  g('phone').style.borderColor = l.col;
+  g('pact').textContent        = l.pATxt;
+  g('pact').style.background   = l.pABg;
+  g('psub').textContent        = l.pSub;
 
-  const devS = (!ck('i-kd')?30:0)+(!ck('i-dh')?8:0)+(!ck('i-nv')?12:0);
-  const ctxS = (!ck('i-kl')?15:0)+(!ck('i-nh')?8:0)+(!ck('i-tn')?5:0);
-  const behS = Math.round(beh*25), failS = failed*8;
-  const rows = [['Device',devS,50],['Behaviour',behS,25],['Context',ctxS,28],['Event',evPts,35],['History',failS,24]];
-  g('bkdn').innerHTML = rows.map(([l,v,m]) =>
-    '<div class="breakdown-bar"><div style="display:flex;justify-content:space-between;font-size:11px;color:#666"><span>'+l+'</span>'
-    +'<span style="font-weight:600;color:'+(v?'#C55A11':'#CCC')+'">+'+v+'</span></div>'
-    +'<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(v/m*100)+'%;background:'+(v?'#C55A11':'#E0E0E0')+'"></div></div></div>'
-  ).join('');
+  // SOC alert for critical
+  const socEl = g('soc-alert');
+  if (lk === 'critical') {
+    socEl.classList.add('show');
+    g('soc-detail').textContent = `Score ${s}/100. Session ID logged to Hyperledger Besu. SOC ticket raised.`;
+  } else {
+    socEl.classList.remove('show');
+  }
 
+  // OTP / biometric copy on phone screen
+  if (lk === 'high') {
+    g('ptx1').textContent = 'Verification required';
+    g('ptx2').textContent = 'One-Time Password';
+    g('ptx3').textContent = 'Sent to +91 ██ 5678';
+  } else if (lk === 'medium') {
+    g('ptx1').textContent = 'Confirm identity';
+    g('ptx2').textContent = 'Biometric check';
+    g('ptx3').textContent = 'Touch sensor below';
+  } else if (lk === 'critical') {
+    g('ptx1').textContent = 'Session blocked';
+    g('ptx2').textContent = 'Security alert';
+    g('ptx3').textContent = 'Contact 1800-XXX-XXXX';
+  } else {
+    g('ptx1').textContent = 'Sending ₹45,000';
+    g('ptx2').textContent = 'Ramesh Kumar';
+    g('ptx3').textContent = 'HDFC ···· 4821';
+  }
+
+  // Breakdown bars
+  const dimMax = [['Device',sc.devS,50],['Behaviour',sc.behS,25],['Context',sc.ctxS,28],['Event',sc.evS,35],['History',sc.histS,24]];
+  if (sc.ssBonus) dimMax.push(['SIM swap',sc.ssBonus,15]);
+  g('bkdn').innerHTML = dimMax.map(([lbl,v,mx]) => {
+    const pct = Math.round(v/mx*100);
+    const col = v ? sliderColor(v, mx) : '#E0E0E0';
+    return `<div class="bkdn-bar">
+      <div class="bar-lbl"><span>${lbl}</span><span style="font-weight:600;color:${v?col:'#CCC'}">+${v} <span class="bar-max">/ ${mx}</span></span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Risk factors
+  const factors = getFactors(sc);
+  if (factors.length) {
+    g('factors').innerHTML = factors.map(f =>
+      `<div class="factor" style="border-left-color:${sliderColor(f.v, 35)}">
+         <span class="factor-score" style="color:${sliderColor(f.v, 35)}">+${f.v}</span>
+         <span>${f.t}</span>
+       </div>`
+    ).join('');
+  } else {
+    g('factors').innerHTML = '<div class="zero-factor">✓ No elevated risk factors detected</div>';
+  }
+
+  // Transfer extras visibility
+  const showTransfer = evType === 'transfer' || evType === 'beneficiary_add';
+  g('transfer-extras').style.display = showTransfer ? 'block' : 'none';
+
+  // Decision log (debounced)
   clearTimeout(dbTmr);
   dbTmr = setTimeout(() => {
-    logArr.unshift({ t:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-                     ev:evLabel, sc, col:lv.col, act:lv.act });
-    if (logArr.length > 5) logArr.pop();
-    g('dlog').innerHTML = logArr.map((e,i) =>
-      '<div class="log-entry" style="background:'+(i?'#F9FAFB':'rgba('+hr(e.col)+',.05)')+';border-color:'+(i?'#E8EDF5':'rgba('+hr(e.col)+',.2)')+';opacity:'+(1-i*.15)+'">'
-      +'<span style="font-size:11px;color:#AAA;min-width:54px">'+e.t+'</span>'
-      +'<span style="font-size:12px;color:#555;min-width:80px">'+e.ev+'</span>'
-      +'<div style="flex:1;height:5px;background:#E8EDF5;border-radius:3px;overflow:hidden"><div style="width:'+e.sc+'%;height:100%;background:'+e.col+';border-radius:3px"></div></div>'
-      +'<strong style="font-size:13px;color:'+e.col+';min-width:24px;text-align:right">'+e.sc+'</strong>'
-      +'<span style="font-size:11px;color:#fff;background:'+e.col+';padding:2px 9px;border-radius:4px;white-space:nowrap;font-weight:600">'+e.act+'</span>'
-      +'</div>'
+    logArr.unshift({ t: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+                     ev: evLabel, s, col: l.col, act: l.act });
+    if (logArr.length > 8) logArr.pop();
+    g('dlog').innerHTML = logArr.map((e, i) =>
+      `<div class="log-entry" style="background:${i?'#F9FAFB':'rgba('+hr(e.col)+',.04)'};border-color:${i?'var(--border)':'rgba('+hr(e.col)+',.2)'};opacity:${Math.max(0.4,1-i*.1)}">
+         <span style="font-size:10px;color:#AAA;min-width:52px">${e.t}</span>
+         <span style="font-size:11px;color:#555;min-width:90px">${e.ev}</span>
+         <div style="flex:1;height:4px;background:#E8EDF5;border-radius:2px;overflow:hidden">
+           <div style="width:${e.s}%;height:100%;background:${e.col};border-radius:2px"></div></div>
+         <strong style="font-size:12px;color:${e.col};min-width:24px;text-align:right">${e.s}</strong>
+         <span style="font-size:10px;color:#fff;background:${e.col};padding:2px 8px;border-radius:4px;font-weight:600;white-space:nowrap">${e.act}</span>
+       </div>`
     ).join('');
-  }, 400);
+  }, 350);
+
+  // Sync API Explorer
+  updateApiExplorer(sc, s, lk, l, lat, factors);
 }
 
-function hr(h) { return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)].join(','); }
-function onBeh(v) { beh=v/100; g('bv-pct').textContent=v+'%'; g('bv-pct').style.color=v>50?'#993C1D':'#0F6E56'; upd(); }
-function setFa(n) { failed=n; [0,1,2,3].forEach(i=>{const b=g('fa'+i);b.classList.toggle('on',i===n);}); upd(); }
-function setEv(b) { document.querySelectorAll('.ev-btn').forEach(x=>x.classList.remove('on')); b.classList.add('on'); evPts=+b.dataset.pts; evLabel=b.querySelector('span').textContent; upd(); }
+function hr(h) {
+  return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)].join(',');
+}
 
+// ── Setters ───────────────────────────────────────────────────
+function setFa(n) {
+  failed = n;
+  [0,1,2,3].forEach(i => g('fa'+i).classList.toggle('on', i===n));
+  upd();
+}
+function setCs(n) {
+  concurrent = n;
+  [1,2,3].forEach(i => g('cs'+i).classList.toggle('on', i===n));
+  upd();
+}
+function setIp(v) {
+  ipRep = v;
+  ['clean','suspicious','sanctioned'].forEach(k => g('ip-'+k).classList.toggle('on', k===v));
+  upd();
+}
+function setEv(btn) {
+  document.querySelectorAll('.ev-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  evPts  = +btn.dataset.pts;
+  evType = btn.dataset.ev;
+  evLabel = btn.querySelector('span:first-child').textContent;
+  upd();
+}
+
+// ── Scenarios ─────────────────────────────────────────────────
 const SCENES = [
-  { kd:1,dh:1,nv:1,beh:0,kl:1,nh:1,tn:1,ev:'login',pts:0,lb:'Login',fa:0 },
-  { kd:0,dh:1,nv:1,beh:0,kl:1,nh:1,tn:1,ev:'login',pts:0,lb:'Login',fa:0 },
-  { kd:0,dh:1,nv:1,beh:0.2,kl:0,nh:1,tn:1,ev:'account_recovery',pts:25,lb:'Acct recovery',fa:2 },
-  { kd:0,dh:1,nv:0,beh:0.9,kl:0,nh:0,tn:0,ev:'admin_access',pts:30,lb:'Admin access',fa:3 },
-  { kd:1,dh:1,nv:1,beh:0.6,kl:1,nh:0,tn:0,ev:'admin_access',pts:30,lb:'Admin access',fa:0 },
+  // 0: Normal session — LOW ~0
+  { kd:1, hlth:100, vpn:0, net:'wifi', ip:'clean', ks:0, ta:0, ga:0, loc:0, time_a:0, tn:1, ev:'login', pts:0, lb:'Login', ev_t:'login', nb:0, amount:'', fa:0, cs:1, ss:0 },
+  // 1: New device login — MEDIUM ~33
+  { kd:0, hlth:100, vpn:0, net:'wifi', ip:'clean', ks:10, ta:5, ga:0, loc:0, time_a:0, tn:1, ev:'login', pts:0, lb:'Login', ev_t:'login', nb:0, amount:'', fa:0, cs:1, ss:0 },
+  // 2: High-value + new payee (with work VPN) — MEDIUM ~52
+  { kd:1, hlth:100, vpn:1, net:'vpn', ip:'clean', ks:20, ta:0, ga:0, loc:0, time_a:0, tn:1, ev:'transfer', pts:10, lb:'Fund transfer', ev_t:'transfer', nb:1, amount:'500000', fa:0, cs:1, ss:0 },
+  // 3: Account recovery — MEDIUM ~55
+  { kd:0, hlth:100, vpn:0, net:'wifi', ip:'clean', ks:0, ta:0, ga:0, loc:0, time_a:0, tn:1, ev:'account_recovery', pts:25, lb:'Acct recovery', ev_t:'account_recovery', nb:0, amount:'', fa:0, cs:1, ss:0 },
+  // 4: SIM swap attempt — HIGH ~68
+  { kd:1, hlth:100, vpn:0, net:'4g', ip:'clean', ks:20, ta:10, ga:0, loc:30, time_a:70, tn:1, ev:'sim_activity', pts:35, lb:'SIM activity', ev_t:'sim_activity', nb:0, amount:'', fa:0, cs:1, ss:1 },
+  // 5: Insider threat — HIGH ~63
+  { kd:1, hlth:100, vpn:0, net:'wifi', ip:'clean', ks:65, ta:50, ga:0, loc:40, time_a:90, tn:1, ev:'admin_access', pts:30, lb:'Admin access', ev_t:'admin_access', nb:0, amount:'', fa:0, cs:2, ss:0 },
+  // 6: Suspicious admin (suspicious IP, off-hours, unknown location) — HIGH ~84
+  { kd:1, hlth:80, vpn:0, net:'wifi', ip:'suspicious', ks:40, ta:30, ga:0, loc:60, time_a:65, tn:1, ev:'admin_access', pts:30, lb:'Admin access', ev_t:'admin_access', nb:0, amount:'', fa:1, cs:1, ss:0 },
+  // 7: Account takeover (all signals maxed) — CRITICAL ~100
+  { kd:0, hlth:30, vpn:1, net:'tor', ip:'sanctioned', ks:95, ta:90, ga:70, loc:95, time_a:100, tn:0, ev:'admin_access', pts:30, lb:'Admin access', ev_t:'admin_access', nb:1, amount:'', fa:3, cs:3, ss:0 },
 ];
 
 function scene(i) {
   const s = SCENES[i];
-  ['i-kd','i-dh','i-nv','i-kl','i-nh','i-tn'].forEach((id,j) => {
-    g(id).checked = [s.kd,s.dh,s.nv,s.kl,s.nh,s.tn][j];
-  });
-  beh = s.beh; g('i-beh').value = Math.round(beh*100);
-  g('bv-pct').textContent = Math.round(beh*100)+'%';
-  g('bv-pct').style.color = beh>0.5?'#993C1D':'#0F6E56';
-  evPts = s.pts; evLabel = s.lb;
-  document.querySelectorAll('.ev-btn').forEach(b => b.classList.toggle('on', b.dataset.ev===s.ev));
+  g('i-kd').checked = !!s.kd;
+  g('i-hlth').value = s.hlth; onSlider('i-hlth','hlth-v');
+  g('i-vpn').checked = !!s.vpn;
+  g('i-net').value = s.net;
+  setIp(s.ip);
+  g('i-ks').value = s.ks; onSlider('i-ks','ks-v');
+  g('i-ta').value = s.ta; onSlider('i-ta','ta-v');
+  g('i-ga').value = s.ga; onSlider('i-ga','ga-v');
+  g('i-loc').value = s.loc; onSlider('i-loc','loc-v');
+  g('i-time').value = s.time_a; onSlider('i-time','time-v');
+  g('i-tn').checked = !!s.tn;
+  evPts = s.pts; evType = s.ev_t; evLabel = s.lb;
+  document.querySelectorAll('.ev-btn').forEach(b => b.classList.toggle('on', b.dataset.ev === s.ev));
+  if (g('i-nb')) g('i-nb').checked = !!s.nb;
+  if (g('i-amount')) g('i-amount').value = s.amount;
   setFa(s.fa);
+  setCs(s.cs);
+  g('i-ss').checked = !!s.ss;
   upd();
 }
 
+// ── API Explorer ──────────────────────────────────────────────
+function buildPayload(sc) {
+  const health = Math.round(sc.health * 100) / 100;
+  return {
+    session_id: 'sess_' + Math.random().toString(36).slice(2, 14),
+    user_id: 'usr_' + Math.random().toString(36).slice(2, 10),
+    device_id: 'dev_' + Math.random().toString(36).slice(2, 12),
+    is_known_device: ck('i-kd'),
+    device_health_score: health,
+    vpn_detected: ck('i-vpn'),
+    network_type: g('i-net').value,
+    ip_reputation: ipRep,
+    keystroke_anomaly: Math.round(sc.ks * 100) / 100,
+    touch_anomaly: Math.round(sc.ta * 100) / 100,
+    gait_anomaly: Math.round(sc.ga * 100) / 100,
+    location_anomaly: Math.round(sc.locA * 100) / 100,
+    time_anomaly: Math.round(gv('i-time') / 100 * 100) / 100,
+    trusted_network_context: ck('i-tn'),
+    event_type: evType,
+    transaction_amount: sc.amount > 0 ? sc.amount : null,
+    is_new_beneficiary: ck('i-nb'),
+    sim_swap_detected: ck('i-ss'),
+    failed_attempts_last_hour: failed,
+    concurrent_sessions: concurrent,
+  };
+}
+
+function syntaxHighlight(obj) {
+  const j = JSON.stringify(obj, null, 2);
+  return j.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+    let cls = 'json-num';
+    if (/^"/.test(m)) { cls = /:$/.test(m) ? 'json-key' : 'json-str'; }
+    else if (/true|false/.test(m)) { cls = 'json-bool'; }
+    else if (/null/.test(m)) { cls = 'json-bool'; }
+    return `<span class="${cls}">${m}</span>`;
+  });
+}
+
+function updateApiExplorer(sc, s, lk, l, lat, factors) {
+  const payload = buildPayload(sc);
+  g('json-payload').innerHTML = syntaxHighlight(payload);
+
+  const breakdown = { device:sc.devS, behavior:sc.behS, context:sc.ctxS, event:sc.evS, history:sc.histS };
+  if (sc.ssBonus) breakdown.sim_swap_bonus = sc.ssBonus;
+  const response = {
+    session_id: payload.session_id,
+    trust_score: s,
+    risk_level: lk,
+    required_action: { low:'silent_pass', medium:'biometric_prompt', high:'step_up_auth', critical:'block_and_alert' }[lk],
+    latency_ms: lat,
+    explanation: factors.map(f => `+${f.v}: ${f.t}`),
+    breakdown,
+    audit_ref: 'aud_' + Math.random().toString(36).slice(2, 18),
+  };
+  g('json-response').innerHTML = syntaxHighlight(response);
+  g('res-lat').textContent = '⏱ ' + lat + ' ms';
+
+  const apiUrl = window.TRUSTPULSE_API_URL
+    || (location.protocol === 'file:' ? 'http://localhost:8000' : location.origin);
+  const curl = `curl -s -X POST "${apiUrl}/v1/score" \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: tp_demo_key" \\
+  -d '${JSON.stringify(payload, null, 2)}'`;
+  g('curl-box').textContent = curl;
+}
+
+// ── Tab switching ─────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('on'));
+  g('t-' + id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ── Clipboard ────────────────────────────────────────────────
+function copyPayload() {
+  navigator.clipboard?.writeText(g('json-payload').textContent).then(() => alert('Payload copied!'));
+}
+function copyCurl() {
+  navigator.clipboard?.writeText(g('curl-box').textContent).then(() => alert('cURL command copied!'));
+}
+
+// ── Backend health check ──────────────────────────────────────
+async function pingBackend() {
+  // If served by the backend itself, use same origin; otherwise try localhost
+  const apiUrl = window.TRUSTPULSE_API_URL
+    || (location.protocol === 'file:' ? 'http://localhost:8000' : location.origin);
+  if (!apiUrl) { setApiStatus('amber', 'No backend URL configured'); return; }
+  try {
+    setApiStatus('amber', 'Checking…');
+    const r = await fetch(apiUrl + '/health', { signal: AbortSignal.timeout(3000) });
+    if (r.ok) { setApiStatus('green', 'Backend online'); }
+    else       { setApiStatus('amber', 'Backend error'); }
+  } catch { setApiStatus('red', 'Backend offline — local mode'); }
+}
+function setApiStatus(color, label) {
+  const dot = g('api-dot');
+  dot.className = 'dot dot-' + color;
+  g('api-lbl').textContent = label;
+}
+
+// ── Init ──────────────────────────────────────────────────────
 upd();
+pingBackend();
 </script>
 </body>
 </html>
