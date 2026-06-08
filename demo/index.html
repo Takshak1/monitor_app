@@ -1541,22 +1541,13 @@ function upd() {
   const showTransfer = evType === 'transfer' || evType === 'beneficiary_add';
   g('transfer-extras').style.display = showTransfer ? 'block' : 'none';
 
-  // Decision log (debounced) with slide-in animation on latest entry
+  // Decision log (debounced) — add newest entry then re-render
   clearTimeout(dbTmr);
   dbTmr = setTimeout(() => {
     logArr.unshift({ t: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
                      ev: evLabel, s, col: l.col, act: l.act });
     if (logArr.length > 8) logArr.pop();
-    g('dlog').innerHTML = logArr.map((e, i) =>
-      `<div class="log-entry${i===0?' new':''}" style="background:${i?'#F8FAFB':'rgba('+hr(e.col)+',.04)'};border-color:${i?'var(--border)':'rgba('+hr(e.col)+',.22)'};opacity:${Math.max(0.42,1-i*.1)}">
-         <span style="font-size:10px;color:#98B5D5;min-width:54px;font-weight:500">${e.t}</span>
-         <span style="font-size:11px;color:#4B5563;min-width:90px;font-weight:500">${e.ev}</span>
-         <div style="flex:1;height:4px;background:#E5EDF8;border-radius:2px;overflow:hidden">
-           <div style="width:${e.s}%;height:100%;background:${e.col};border-radius:2px;transition:width .4s"></div></div>
-         <strong style="font-size:12px;color:${e.col};min-width:24px;text-align:right">${e.s}</strong>
-         <span style="font-size:10px;color:#fff;background:${e.col};padding:2px 8px;border-radius:5px;font-weight:700;white-space:nowrap;letter-spacing:.01em">${e.act}</span>
-       </div>`
-    ).join('');
+    renderLog(true);
   }, 350);
 
   // Sync API Explorer
@@ -1565,6 +1556,20 @@ function upd() {
 
 function hr(h) {
   return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)].join(',');
+}
+
+function renderLog(markNewest) {
+  if (!logArr.length) return;
+  g('dlog').innerHTML = logArr.map((e, i) =>
+    `<div class="log-entry${markNewest && i===0?' new':''}" style="background:${i?'#F8FAFB':'rgba('+hr(e.col)+',.04)'};border-color:${i?'var(--border)':'rgba('+hr(e.col)+',.22)'};opacity:${Math.max(0.42,1-i*.1)}">
+       <span style="font-size:10px;color:#98B5D5;min-width:54px;font-weight:500">${e.t}</span>
+       <span style="font-size:11px;color:#4B5563;min-width:90px;font-weight:500">${e.ev}</span>
+       <div style="flex:1;height:4px;background:#E5EDF8;border-radius:2px;overflow:hidden">
+         <div style="width:${e.s}%;height:100%;background:${e.col};border-radius:2px;transition:width .4s"></div></div>
+       <strong style="font-size:12px;color:${e.col};min-width:24px;text-align:right">${e.s}</strong>
+       <span style="font-size:10px;color:#fff;background:${e.col};padding:2px 8px;border-radius:5px;font-weight:700;white-space:nowrap;letter-spacing:.01em">${e.act}</span>
+     </div>`
+  ).join('');
 }
 
 // ── Setters ───────────────────────────────────────────────────
@@ -1749,7 +1754,14 @@ function setApiStatus(color, label) {
 }
 
 // ── Init ──────────────────────────────────────────────────────
-// Pre-seed log with realistic historical entries so it's never empty on load
+// 1. Hard-reset gauge to 0 immediately so there's zero chance of a stale flash
+const _gs = g('gscore');
+if (_gs) { _gs.textContent = '0'; _gs.style.fill = '#0F6E56'; }
+g('gf').setAttribute('stroke-dasharray', '0 ' + (ARC + 10));
+g('gf').style.stroke = '#0F6E56';
+
+// 2. Pre-seed log with realistic historical entries — rendered synchronously
+//    so the Hyperledger audit trail is visible the moment the page loads.
 logArr = [
   { t:'13:41:17', ev:'Login',          s:5,  col:'#0F6E56', act:'Silent pass' },
   { t:'13:14:08', ev:'Fund transfer',  s:18, col:'#0F6E56', act:'Silent pass' },
@@ -1759,6 +1771,9 @@ logArr = [
   { t:'11:30:04', ev:'SIM activity',   s:71, col:'#993C1D', act:'Step-up auth' },
   { t:'10:48:22', ev:'Admin access',   s:96, col:'#A32D2D', act:'Block + alert' },
 ];
+renderLog(false); // render seed entries NOW — no slide-in animation (they look historical)
+
+// 3. Run the live calculation — will debounce-add the current session entry after 350ms
 upd();
 pingBackend();
 </script>
